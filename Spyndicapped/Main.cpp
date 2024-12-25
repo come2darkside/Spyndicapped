@@ -46,23 +46,6 @@ void ShowHelp()
 	std::wcout << L"\t --debug <- displays more information" << std::endl;
 }
 
-HRESULT RegisterSpyer(wchar_t* windowName, DWORD pid)
-{
-
-	if (windowName)
-	{
-		Log(L"Spying: " + std::wstring(windowName), DBG);
-	}
-
-	if (pid != 0)
-	{
-		Log(L"Spying: " + std::to_wstring(pid), DBG);
-	}
-
-
-
-	return 0;
-}
 
 int wmain(int argc, wchar_t* argv[])
 {
@@ -85,7 +68,7 @@ int wmain(int argc, wchar_t* argv[])
 
 	if (cmdOptionExists(argv, argv + argc, L"find"))
 	{
-		if (FindWindows() != 0)
+		if (Finder::DisplayActiveWindows() != 0)
 		{
 			Log(L"Failed to find windows!", WARNING);
 			return -1;
@@ -95,7 +78,7 @@ int wmain(int argc, wchar_t* argv[])
 	else if (cmdOptionExists(argv, argv + argc, L"spy"))
 	{
 		wchar_t* windowName = NULL;
-		DWORD pid;
+		DWORD pid = 0;
 		if (cmdOptionExists(argv, argv + argc, L"--window"))
 		{
 			windowName = getCmdOption(argv, argv + argc, L"--window");
@@ -107,7 +90,7 @@ int wmain(int argc, wchar_t* argv[])
 			pid = static_cast<DWORD>(std::wcstoul(pidStr.c_str(), nullptr, 10));
 		}
 
-		RegisterSpyer(windowName, pid);
+		MyAutomationEventHandler::Deploy(windowName, pid);
 	}
 	else if ( cmdOptionExists(argv, argv + argc, L"-h") || (cmdOptionExists(argv, argv + argc, L"--help")) )
 	{

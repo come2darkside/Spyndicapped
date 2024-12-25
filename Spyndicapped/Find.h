@@ -8,4 +8,16 @@
 #include <Psapi.h>
 #include <atlbase.h>
 
-ULONG FindWindows();
+
+static class Finder {
+public:
+	static ULONG DisplayActiveWindows();
+	static std::wstring GetModuleNameFromPid(DWORD pid);
+	static IUIAutomationElement* GetUIAElementByPID(IUIAutomation* pAutomation, DWORD pid);
+	static IUIAutomationElement* GetUIAElementByName(IUIAutomation* pAutomation, wchar_t* windowName);
+};
+
+struct HANDLEDATA {
+	unsigned long pid;
+	HWND hwnd;
+};

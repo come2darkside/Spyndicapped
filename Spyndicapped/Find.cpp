@@ -1,7 +1,7 @@
 #include "Find.h"
 #include "Errors.h"
 
-std::wstring GetModuleNameFromPid(DWORD pid) {
+std::wstring Finder::GetModuleNameFromPid(DWORD pid) {
 
 	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
 
@@ -24,7 +24,7 @@ std::wstring GetModuleNameFromPid(DWORD pid) {
 	return L"";
 }
 
-ULONG FindWindows()
+ULONG Finder::DisplayActiveWindows()
 {
 	HRESULT hr;
 	int length = 0;
@@ -129,4 +129,83 @@ ULONG FindWindows()
 	}
 
 	return 0;
+}
+
+
+BOOL CALLBACK enum_windows_callback(HWND handle, LPARAM lParam)
+{
+	HANDLEDATA& data = *(HANDLEDATA*)lParam;
+	unsigned long process_id = 0;
+	GetWindowThreadProcessId(handle, &process_id);
+	if (data.pid != process_id || !(GetWindow(handle, GW_OWNER) == (HWND)0 && IsWindowVisible(handle)))
+		return TRUE;
+	data.hwnd = handle;
+	return FALSE;
+}
+
+IUIAutomationElement* Finder::GetUIAElementByPID(IUIAutomation* pAutomation, DWORD pid)
+{
+	IUIAutomationElement* pAutomationElement;
+
+	HANDLEDATA data;
+	data.pid = pid;
+	data.hwnd = 0;
+
+	EnumWindows(enum_windows_callback, (LPARAM)&data);
+
+	if (data.hwnd == NULL)
+	{
+		Log(L"Cant find HWND", WARNING);
+		return nullptr;
+	}
+
+	pAutomation->ElementFromHandle(data.hwnd, &pAutomationElement);
+	return pAutomationElement;
+}
+
+IUIAutomationElement* Finder::GetUIAElementByName(IUIAutomation* pAutomation, wchar_t* windowName)
+{
+	HRESULT hr;
+	CComPtr<IUIAutomationCondition> pCondition = NULL;
+	IUIAutomationElement* pRootElement = NULL;
+	CComPtr<IUIAutomationElementArray> pElementArray = NULL;
+
+	VARIANT vWindowName;
+	VariantInit(&vWindowName);
+	vWindowName.vt = VT_BSTR; 
+	vWindowName.bstrVal = SysAllocString(windowName);
+
+	hr = pAutomation->CreatePropertyCondition(UIA_NamePropertyId, vWindowName, &pCondition);
+
+	if (FAILED(hr)) {
+		Log(L"pAutomation->CreatePropertyCondition() failed", WARNING);
+		PrintErrorFromHRESULT(hr);
+		return nullptr;
+	}
+
+	hr = pAutomation->GetRootElement(&pRootElement);
+	if (FAILED(hr)) {
+		Log(L"pAutomation->GetRootElement() failed", WARNING);
+		PrintErrorFromHRESULT(hr);
+		return nullptr;
+	}
+
+	
+	hr = pRootElement->FindAll(TreeScope_Children, pCondition, &pElementArray);
+	if (FAILED(hr)) {
+		Log(L"pRootElement->FindAll() failed", WARNING);
+		PrintErrorFromHRESULT(hr);
+		return nullptr;
+	}
+
+	int count = 0;
+	hr = pElementArray->get_Length(&count);
+
+	if (SUCCEEDED(hr) && count > 0) {
+		CComPtr<IUIAutomationElement> pMainWindow = NULL;
+		hr = pElementArray->GetElement(0, &pMainWindow);
+		return pMainWindow; 
+	}
+
+	return nullptr;
 }
