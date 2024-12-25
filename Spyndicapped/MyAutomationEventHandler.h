@@ -17,7 +17,7 @@ public:
 	ULONG STDMETHODCALLTYPE AddRef();
 	ULONG STDMETHODCALLTYPE Release();
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppInterface);
-	HRESULT STDMETHODCALLTYPE HandleAutomationEvent(IUIAutomationElement* pSender, EVENTID eventID);
+	HRESULT STDMETHODCALLTYPE HandleAutomationEvent(IUIAutomationElement* pAutomationElement, EVENTID eventID);
 	static HRESULT STDMETHODCALLTYPE Deploy(wchar_t* windowName, DWORD pid);
 };
 
