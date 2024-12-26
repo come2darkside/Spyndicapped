@@ -45,6 +45,7 @@ void ShowHelp()
 	std::wcout << L"[Other]" << std::endl;
 	std::wcout << L"\t --debug <- displays more information" << std::endl;
 	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
+	std::wcout << L"\t --ignore-handlers <- I have created handlers for various apps, but u can use the generic HandleOther() with this flag" << std::endl;
 }
 
 
@@ -71,6 +72,11 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		Log(L"See everything into the log files", INFO);
 		g_LogFileName = getCmdOption(argv, argv + argc, L"--logfile");
+	}
+
+	if (cmdOptionExists(argv, argv + argc, L"--ignore-handlers"))
+	{
+		g_IgnoreHandlers = true;
 	}
 
 	if (cmdOptionExists(argv, argv + argc, L"find"))

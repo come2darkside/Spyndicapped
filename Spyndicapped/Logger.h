@@ -4,6 +4,8 @@
 #include <comdef.h>
 #include <UIAutomationClient.h>
 #include <fstream>
+#include <codecvt>
+#include <locale>
 
 extern std::wstring g_LogFileName;
 extern bool g_DebugModeEnable;

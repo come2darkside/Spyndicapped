@@ -9,6 +9,8 @@
 #include <functional>
 #include <unordered_map>
 
+extern bool g_IgnoreHandlers;
+
 class MyAutomationEventHandler : public IUIAutomationEventHandler
 {
 private:

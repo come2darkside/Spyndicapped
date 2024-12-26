@@ -7,7 +7,9 @@ bool g_DebugModeEnable = false;
 void Log(const std::wstring& message, LogLevel level) {
 
     if (!g_LogFileName.empty()) {
-        std::wofstream logFile(g_LogFileName, std::ios::app);
+        std::wofstream logFile(g_LogFileName);
+        logFile.imbue(std::locale(""));
+
         if (logFile.is_open()) {
             switch (level) {
             case EMPTY:

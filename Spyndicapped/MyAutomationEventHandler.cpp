@@ -4,6 +4,8 @@
 #include "Logger.h"
 #include "Helpers.h"
 
+bool g_IgnoreHandlers = false;
+
 MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1), eventCount(0)
 {
 
@@ -76,19 +78,25 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 
 	Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
 
-	std::unordered_map<std::wstring, std::function<void()>> handlers = {
-		{ L"firefox.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleFirefox(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
-		{ L"chrome.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleChrome(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
-		{ L"explorer.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleExplorer(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } }
-	};
-
-	auto it = handlers.find(Helpers::ConvertToLower(wsProcName));
-
-	if (it != handlers.end()) {
-		it->second();
+	if (g_IgnoreHandlers)
+	{
+		HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
 	}
 	else {
-		HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
+		std::unordered_map<std::wstring, std::function<void()>> handlers = {
+			{ L"firefox.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleFirefox(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
+			{ L"chrome.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleChrome(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
+			{ L"explorer.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleExplorer(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } }
+		};
+
+		auto it = handlers.find(Helpers::ConvertToLower(wsProcName));
+
+		if (it != handlers.end()) {
+			it->second();
+		}
+		else {
+			HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
+		}
 	}
 
 	return ERROR_SUCCESS;
@@ -148,6 +156,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, 
 		Log(L"Window Name: " + wname, INFO);
 	}
 
+	// dont forget about adding event handling in apps.cpp
 	std::vector<EVENTID> eventIds = {
 			UIA_Text_TextChangedEventId,
 			UIA_Invoke_InvokedEventId,
