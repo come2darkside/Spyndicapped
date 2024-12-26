@@ -1,5 +1,6 @@
 #include "Find.h"
 #include "Errors.h"
+#include "Logger.h"
 
 std::wstring Finder::GetModuleNameFromPid(DWORD pid) {
 
@@ -22,6 +23,22 @@ std::wstring Finder::GetModuleNameFromPid(DWORD pid) {
 
 	CloseHandle(hProcess); 
 	return L"";
+}
+
+DWORD Finder::GetPIDByUIAutomationElement(IUIAutomationElement* pAutomationElement)
+{
+	VARIANT vPid;
+	HRESULT hr = pAutomationElement->GetCurrentPropertyValue(UIA_ProcessIdPropertyId, &vPid);
+	if (FAILED(hr))
+	{
+		Log(L"pChildEl->GetCurrentPropertyValue(PID) failed", DBG);
+	}
+
+	if (V_VT(&vPid) == VT_I4)
+	{
+		return V_I4(&vPid);
+	}
+	return -1;
 }
 
 ULONG Finder::DisplayActiveWindows()
@@ -94,25 +111,20 @@ ULONG Finder::DisplayActiveWindows()
 
 		std::wstring wsWindowName(bWindowName, SysStringLen(bWindowName));
 		
-		if (wsWindowName.length() == 0)
+		if (wsWindowName.empty())
 		{
 			wsWindowName = L"<Empty>";
 		}
 
 		VARIANT vPid;
-		hr = pChildEl->GetCurrentPropertyValue(UIA_ProcessIdPropertyId, &vPid);
-		if (FAILED(hr))
-		{
-			Log(L"pChildEl->GetCurrentPropertyValue(PID) failed", DBG);
-			continue;
-		}
-
-		if (V_VT(&vPid) == VT_I4)
+		DWORD pid = Finder::GetPIDByUIAutomationElement(pChildEl);
+		
+		if (pid != -1)
 		{
 			Log(
 				L"[" + std::to_wstring(i) + L"] " +
-				L" | PID: " + std::to_wstring(V_I4(&vPid)) +
-				L" | Name: " + GetModuleNameFromPid(V_I4(&vPid)) +
+				L" | PID: " + std::to_wstring(pid) +
+				L" | Name: " + GetModuleNameFromPid(pid) +
 				L" | Window name: " + wsWindowName +
 				L" |",
 				EMPTY

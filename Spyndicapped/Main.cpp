@@ -3,7 +3,7 @@
 #include "Find.h"
 #include "MyAutomationEventHandler.h"
 #include "Errors.h"
-
+#include "Logger.h"
 
 void ShowAwesomeBanner() {
 
@@ -44,6 +44,7 @@ void ShowHelp()
 
 	std::wcout << L"[Other]" << std::endl;
 	std::wcout << L"\t --debug <- displays more information" << std::endl;
+	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
 }
 
 
@@ -64,6 +65,12 @@ int wmain(int argc, wchar_t* argv[])
 	if (cmdOptionExists(argv, argv + argc, L"--debug"))
 	{
 		g_DebugModeEnable = true;
+	}
+
+	if (cmdOptionExists(argv, argv + argc, L"--logfile"))
+	{
+		Log(L"See everything into the log files", INFO);
+		g_LogFileName = getCmdOption(argv, argv + argc, L"--logfile");
 	}
 
 	if (cmdOptionExists(argv, argv + argc, L"find"))

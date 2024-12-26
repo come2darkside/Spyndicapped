@@ -13,39 +13,66 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\Apps">
+      <UniqueIdentifier>{93b97df0-0b31-4f90-ad4a-237b39578d20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Main">
+      <UniqueIdentifier>{302c9852-8b3e-4287-a6bf-4427052e2329}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Main">
+      <UniqueIdentifier>{6da74374-fe4e-45fc-954b-e4de3965ebe6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="MyAutomationEventHandler.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Find.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Apps.cpp">
+      <Filter>Исходные файлы\Apps</Filter>
     </ClCompile>
     <ClCompile Include="Args.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Main</Filter>
     </ClCompile>
     <ClCompile Include="Errors.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Find.cpp">
+      <Filter>Исходные файлы\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Исходные файлы\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Исходные файлы\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="MyAutomationEventHandler.cpp">
+      <Filter>Исходные файлы\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>Исходные файлы\Main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Main.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="MyAutomationEventHandler.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Find.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Apps.h">
+      <Filter>Исходные файлы\Apps</Filter>
     </ClInclude>
     <ClInclude Include="Args.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Main</Filter>
     </ClInclude>
     <ClInclude Include="Errors.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Find.h">
+      <Filter>Файлы заголовков\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Файлы заголовков\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Файлы заголовков\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="MyAutomationEventHandler.h">
+      <Filter>Файлы заголовков\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Файлы заголовков\Main</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

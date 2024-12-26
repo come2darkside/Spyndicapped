@@ -15,6 +15,7 @@ public:
 	static std::wstring GetModuleNameFromPid(DWORD pid);
 	static IUIAutomationElement* GetUIAElementByPID(IUIAutomation* pAutomation, DWORD pid);
 	static IUIAutomationElement* GetUIAElementByName(IUIAutomation* pAutomation, wchar_t* windowName);
+	static DWORD GetPIDByUIAutomationElement(IUIAutomationElement* pAutomationElement);
 };
 
 struct HANDLEDATA {

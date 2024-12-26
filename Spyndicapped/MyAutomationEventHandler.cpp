@@ -1,6 +1,8 @@
 #include "MyAutomationEventHandler.h"
 #include "Errors.h"
 #include "Find.h"
+#include "Logger.h"
+#include "Helpers.h"
 
 MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1)
 {
@@ -38,27 +40,29 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, 
 	return S_OK;
 }
 
+
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAutomationElement* pAutomationElement, EVENTID eventID)
 {
 	HRESULT hr;
-	switch (eventID)
+	DWORD pid = Finder::GetPIDByUIAutomationElement(pAutomationElement);
+
+	if (pid == -1)
 	{
-		case UIA_Text_TextChangedEventId:
-		{
-			VARIANT vVar;
-			VariantInit(&vVar);
-
-			hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vVar);
-			if (SUCCEEDED(hr))
-			{
-				Log(vVar.bstrVal, EMPTY);
-			}
-			break;
-		}
-
-	default:
-		break;
+		Log(L"MyAutomationEventHandler::HandleAutomationEvent() invalid PID Received", DBG);
+		return ERROR_SUCCESS;
 	}
+
+	std::wstring wsFileName = Finder::GetModuleNameFromPid(pid);
+	if (wsFileName.empty())
+	{
+		Log(L"MyAutomationEventHandler::HandleAutomationEvent() invalid wsProcName Received", DBG);
+		return ERROR_SUCCESS;
+	}
+
+	std::wstring wsProcName = Helpers::GetApplicationName(wsFileName);
+
+	Log(L"New event " + Helpers::EventIdToString(eventID) + L" from " + wsProcName, DBG);
+
 	return ERROR_SUCCESS;
 }
 
@@ -104,7 +108,6 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, 
 	}
 	else
 	{
-		// Monitor all windows
 		Log(L"Monitoring all windows", INFO);
 		pAutomation->GetRootElement(&pAutomationElement);
 	}
@@ -117,12 +120,19 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, 
 		Log(L"Window Name: " + wname, INFO);
 	}
 
-	hr = pAutomation->AddAutomationEventHandler(UIA_Text_TextChangedEventId, pAutomationElement, TreeScope_Subtree, NULL, (IUIAutomationEventHandler*)pMyAutomationEventHandler);
-	if (FAILED(hr))
+	std::vector<EVENTID> eventIds = {
+			UIA_Text_TextChangedEventId,
+			UIA_Invoke_InvokedEventId,
+			UIA_Window_WindowOpenedEventId,
+	};
+
+	for (size_t i = 0; i < eventIds.size(); i++)
 	{
-		Log(L"pAutomation->AddAutomationEventHandler() Failed", WARNING);
-		PrintErrorFromHRESULT(hr);
-		return 1;
+		HRESULT hr = pAutomation->AddAutomationEventHandler(eventIds[i], pAutomationElement, TreeScope_Subtree, NULL, (IUIAutomationEventHandler*)pMyAutomationEventHandler);
+		if (FAILED(hr)) {
+			Log(L"Failed to add event handler for event ID: " + std::to_wstring(eventIds[i]), WARNING);
+			PrintErrorFromHRESULT(hr);
+		}
 	}
 
 	Log(L"Started spying", INFO);
