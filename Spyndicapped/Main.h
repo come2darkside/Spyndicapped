@@ -4,3 +4,4 @@
 #include <string>
 #include <comdef.h>
 #include <locale.h>
+#include <thread>

@@ -1,9 +1,12 @@
 #include "Main.h"
 #include "Args.h"
 #include "Find.h"
-#include "MyAutomationEventHandler.h"
 #include "Errors.h"
 #include "Logger.h"
+#include "MyAutomationEventHandler.h"
+#include "MyPropertyChangedEventHandler.h"
+
+bool g_IgnoreHandlers = false;
 
 void ShowAwesomeBanner() {
 
@@ -143,7 +146,17 @@ int wmain(int argc, wchar_t* argv[])
 			Log(L"Spying " + std::to_wstring(pid), DBG);
 		}
 
-		MyAutomationEventHandler::Deploy(pAutomation, pAutomationElement, timeout);
+		std::thread automationThread(MyAutomationEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
+		std::thread propertyChangedThread(MyPropertyChangedEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
+
+		automationThread.join();
+		propertyChangedThread.join();
+
+		if (pAutomationElement)
+			pAutomationElement->Release();
+		
+		pAutomation->Release();
+
 	}
 	else if ( cmdOptionExists(argv, argv + argc, L"-h") || (cmdOptionExists(argv, argv + argc, L"--help")) )
 	{

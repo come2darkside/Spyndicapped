@@ -22,6 +22,9 @@
     <Filter Include="Исходные файлы\MyAutomationEventHandler">
       <UniqueIdentifier>{93b97df0-0b31-4f90-ad4a-237b39578d20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\MyPropertyChangedEventHandler">
+      <UniqueIdentifier>{22dd2f7c-bd51-4c42-bb2b-ce65769fe3d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyAutomationEventHandlerApps.cpp">
@@ -48,6 +51,9 @@
     <ClCompile Include="MyAutomationEventHandler.cpp">
       <Filter>Исходные файлы\MyAutomationEventHandler</Filter>
     </ClCompile>
+    <ClCompile Include="MyPropertyChangedEventHandler.cpp">
+      <Filter>Исходные файлы\MyPropertyChangedEventHandler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyAutomationEventHandlerApps.h">
@@ -73,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="MyAutomationEventHandler.h">
       <Filter>Исходные файлы\MyAutomationEventHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="MyPropertyChangedEventHandler.h">
+      <Filter>Исходные файлы\MyPropertyChangedEventHandler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

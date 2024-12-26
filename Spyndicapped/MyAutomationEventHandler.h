@@ -15,8 +15,8 @@ extern bool g_IgnoreHandlers;
 class MyAutomationEventHandler : public IUIAutomationEventHandler
 {
 private:
-	ULONG refCount;
-    ULONG eventCount;
+	ULONG refCount = 0;
+    ULONG eventCount = 0;
 	std::chrono::seconds eventTimeout;
 	
 	void HandleFirefox(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);

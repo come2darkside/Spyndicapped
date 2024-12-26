@@ -4,8 +4,6 @@
 #include "Logger.h"
 #include "Helpers.h"
 
-bool g_IgnoreHandlers = false;
-
 MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1), eventCount(0)
 {
 }
@@ -57,7 +55,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 
 	if (now - lastEventTime < GetEventTimeout())
 	{
-		Log(L"Too fast events...", DBG);
+		//Log(L"Too fast events...", DBG);
 		return ERROR_SUCCESS;
 	}
 
@@ -160,9 +158,9 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 		}
 	}
 
-	Log(L"Started spying using MyAutomatinEventHandler", INFO);
+	Log(L"Started spying using MyAutomationEventHandler", INFO);
 
 	while (1) {}
 
-	return 0;
+	return ERROR_SUCCESS;
 }
