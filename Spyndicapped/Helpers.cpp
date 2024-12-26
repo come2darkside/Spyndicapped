@@ -71,3 +71,28 @@ std::wstring Helpers::GetApplicationName(const std::wstring& fullPath) {
     }
     return fullPath;
 }
+
+std::wstring Helpers::GetCurrentDateTime() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+
+    std::tm localTime;
+    localtime_s(&localTime, &now_c);
+
+
+    std::wostringstream oss;
+    oss << L'['
+        << std::put_time(&localTime, L"%Y-%m-%d") 
+        << L" | "
+        << std::put_time(&localTime, L"%H:%M:%S") 
+        << L']';
+
+    return oss.str();
+}
+
+std::wstring Helpers::ConvertToLower(const std::wstring& input)
+{
+    std::wstring output = input;
+    std::transform(input.begin(), input.end(), output.begin(), ::tolower);
+    return output; 
+}

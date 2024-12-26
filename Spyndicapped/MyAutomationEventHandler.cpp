@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "Helpers.h"
 
-MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1)
+MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1), eventCount(0)
 {
 
 }
@@ -25,6 +25,16 @@ ULONG STDMETHODCALLTYPE MyAutomationEventHandler::Release()
 	return refCount;
 }
 
+ULONG STDMETHODCALLTYPE MyAutomationEventHandler::GetEventCount()
+{
+	return eventCount;
+}
+
+VOID STDMETHODCALLTYPE MyAutomationEventHandler::IncrementEventCount()
+{
+	InterlockedIncrement(&eventCount);
+}
+
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, void** ppInterface)
 {
 	if (riid == __uuidof(IUnknown))
@@ -39,7 +49,6 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, 
 	this->AddRef();
 	return S_OK;
 }
-
 
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAutomationElement* pAutomationElement, EVENTID eventID)
 {
@@ -59,9 +68,28 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 		return ERROR_SUCCESS;
 	}
 
-	std::wstring wsProcName = Helpers::GetApplicationName(wsFileName);
+	IncrementEventCount();
 
-	Log(L"New event " + Helpers::EventIdToString(eventID) + L" from " + wsProcName, DBG);
+	std::wstring wsProcName = Helpers::GetApplicationName(wsFileName);
+	std::wstring wsEventString = Helpers::EventIdToString(eventID);
+	std::wstring wsDate = Helpers::GetCurrentDateTime();
+
+	Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
+
+	std::unordered_map<std::wstring, std::function<void()>> handlers = {
+		{ L"firefox.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleFirefox(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
+		{ L"chrome.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleChrome(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
+		{ L"explorer.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleExplorer(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } }
+	};
+
+	auto it = handlers.find(Helpers::ConvertToLower(wsProcName));
+
+	if (it != handlers.end()) {
+		it->second();
+	}
+	else {
+		HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
+	}
 
 	return ERROR_SUCCESS;
 }
