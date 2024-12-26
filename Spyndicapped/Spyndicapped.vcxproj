@@ -128,7 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Apps.cpp" />
+    <ClCompile Include="MyAutomationEventHandlerApps.cpp" />
     <ClCompile Include="Args.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Find.cpp" />
@@ -138,7 +138,7 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Apps.h" />
+    <ClInclude Include="MyAutomationEventHandlerApps.h" />
     <ClInclude Include="Args.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="Find.h" />

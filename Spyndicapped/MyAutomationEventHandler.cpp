@@ -8,7 +8,6 @@ bool g_IgnoreHandlers = false;
 
 MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1), eventCount(0)
 {
-
 }
 
 ULONG STDMETHODCALLTYPE MyAutomationEventHandler::AddRef()
@@ -40,7 +39,7 @@ VOID STDMETHODCALLTYPE MyAutomationEventHandler::IncrementEventCount()
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, void** ppInterface)
 {
 	if (riid == __uuidof(IUnknown))
-		*ppInterface = static_cast<IUIAutomationEventHandler*>(this);
+		*ppInterface = static_cast<IUnknown*>(this);
 	else if (riid == __uuidof(IUIAutomationEventHandler))
 		*ppInterface = static_cast<IUIAutomationEventHandler*>(this);
 	else
@@ -54,6 +53,16 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, 
 
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAutomationElement* pAutomationElement, EVENTID eventID)
 {
+	auto now = std::chrono::steady_clock::now();
+
+	if (now - lastEventTime < GetEventTimeout())
+	{
+		Log(L"Too fast events...", DBG);
+		return ERROR_SUCCESS;
+	}
+
+	lastEventTime = now;
+
 	HRESULT hr;
 	DWORD pid = Finder::GetPIDByUIAutomationElement(pAutomationElement);
 
@@ -102,47 +111,26 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 	return ERROR_SUCCESS;
 }
 
-HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, DWORD pid)
+void STDMETHODCALLTYPE MyAutomationEventHandler::SetEventTimeout(int seconds)
 {
-	CComPtr<IUIAutomation> pAutomation;
-	CComPtr<IUIAutomationElement> pAutomationElement;
+	this->eventTimeout = std::chrono::seconds(seconds);
+}
+
+std::chrono::seconds MyAutomationEventHandler::GetEventTimeout()
+{
+	return this->eventTimeout;
+}
+
+HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutomation, IUIAutomationElement* pAutomationElement, int timeout)
+{
 	MyAutomationEventHandler* pMyAutomationEventHandler = new MyAutomationEventHandler();
+
+	pMyAutomationEventHandler->SetEventTimeout(timeout);
 
 	HRESULT hr;
 	BSTR bName;
 
-	hr = CoCreateInstance(__uuidof(CUIAutomation), NULL, CLSCTX_INPROC_SERVER, __uuidof(IUIAutomation), (void**)&pAutomation);
-	if (FAILED(hr))
-	{
-		Log(L"CoCreateInstance() failed", WARNING);
-		PrintErrorFromHRESULT(hr);
-		return 1;
-	}
-	Log(L"IUIAutomation creating success", DBG);
-
-	if (windowName)
-	{
-		pAutomationElement = Finder::GetUIAElementByName(pAutomation, windowName);
-		if (pAutomationElement == NULL)
-		{
-			Log(L"Cant find GUI by windowname!!!. Try to use --pid", WARNING);
-			return E_INVALIDARG;
-		}
-
-		Log(L"Spying " + std::wstring(windowName), DBG);
-	}
-	else if (pid != 0)
-	{
-		pAutomationElement = Finder::GetUIAElementByPID(pAutomation, pid);
-		if (pAutomationElement == NULL)
-		{
-			Log(L"Cant find GUI by pid!!!. Try to use --windowname", WARNING);
-			return E_INVALIDARG;
-		}
-
-		Log(L"Spying " + std::to_wstring(pid), DBG);
-	}
-	else
+	if (!pAutomationElement)
 	{
 		Log(L"Monitoring all windows", INFO);
 		pAutomation->GetRootElement(&pAutomationElement);
@@ -172,7 +160,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(wchar_t* windowName, 
 		}
 	}
 
-	Log(L"Started spying", INFO);
+	Log(L"Started spying using MyAutomatinEventHandler", INFO);
 
 	while (1) {}
 

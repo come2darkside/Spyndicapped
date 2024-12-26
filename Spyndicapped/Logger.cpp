@@ -7,7 +7,7 @@ bool g_DebugModeEnable = false;
 void Log(const std::wstring& message, LogLevel level) {
 
     if (!g_LogFileName.empty()) {
-        std::wofstream logFile(g_LogFileName);
+        std::wofstream logFile(g_LogFileName, std::ios::app);
         logFile.imbue(std::locale(""));
 
         if (logFile.is_open()) {
@@ -32,7 +32,7 @@ void Log(const std::wstring& message, LogLevel level) {
             logFile.close();
         }
         else {
-            std::wcerr << L"Cant open LOG File " << g_LogFileName << std::endl;
+            std::wcerr << L"[WARNING] Can't open LOG File " << g_LogFileName << std::endl;
         }
     }
     else {

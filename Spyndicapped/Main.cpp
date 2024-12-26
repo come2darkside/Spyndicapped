@@ -46,6 +46,7 @@ void ShowHelp()
 	std::wcout << L"\t --debug <- displays more information" << std::endl;
 	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
 	std::wcout << L"\t --ignore-handlers <- I have created handlers for various apps, but u can use the generic HandleOther() with this flag" << std::endl;
+	std::wcout << L"\t --timeout <sec> <- interval to process events (default 1 sec)";
 }
 
 
@@ -63,6 +64,7 @@ int wmain(int argc, wchar_t* argv[])
 
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
+	// Other args
 	if (cmdOptionExists(argv, argv + argc, L"--debug"))
 	{
 		g_DebugModeEnable = true;
@@ -79,6 +81,14 @@ int wmain(int argc, wchar_t* argv[])
 		g_IgnoreHandlers = true;
 	}
 
+	int timeout = 1;
+	if (cmdOptionExists(argv, argv + argc, L"--timeout"))
+	{
+		std::wstring pidStr = getCmdOption(argv, argv + argc, L"--timeout");
+		timeout = static_cast<int>(std::wcstoul(pidStr.c_str(), nullptr, 10));
+	}
+
+	// Functions
 	if (cmdOptionExists(argv, argv + argc, L"find"))
 	{
 		if (Finder::DisplayActiveWindows() != 0)
@@ -92,18 +102,48 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		wchar_t* windowName = NULL;
 		DWORD pid = 0;
+		HRESULT hr;
+		IUIAutomation* pAutomation = NULL;
+		IUIAutomationElement* pAutomationElement = NULL;
+
+		hr = CoCreateInstance(__uuidof(CUIAutomation), NULL, CLSCTX_INPROC_SERVER, __uuidof(IUIAutomation), (void**)&pAutomation);
+		if (FAILED(hr))
+		{
+			Log(L"CoCreateInstance() failed", WARNING);
+			PrintErrorFromHRESULT(hr);
+			return 1;
+		}
+		Log(L"IUIAutomation creating success", DBG);
+
+
 		if (cmdOptionExists(argv, argv + argc, L"--window"))
 		{
 			windowName = getCmdOption(argv, argv + argc, L"--window");
+			pAutomationElement = Finder::GetUIAElementByName(pAutomation, windowName);
+			if (pAutomationElement == NULL)
+			{
+				Log(L"Cant find GUI by windowname!!!. Try to use --pid", WARNING);
+				return E_INVALIDARG;
+			}
+
+			Log(L"Spying " + std::wstring(windowName), DBG);
 		}
 
 		if (cmdOptionExists(argv, argv + argc, L"--pid"))
 		{
 			std::wstring pidStr = getCmdOption(argv, argv + argc, L"--pid");
 			pid = static_cast<DWORD>(std::wcstoul(pidStr.c_str(), nullptr, 10));
+			pAutomationElement = Finder::GetUIAElementByPID(pAutomation, pid);
+			if (pAutomationElement == NULL)
+			{
+				Log(L"Cant find GUI by pid!!!. Try to use --windowname", WARNING);
+				return E_INVALIDARG;
+			}
+
+			Log(L"Spying " + std::to_wstring(pid), DBG);
 		}
 
-		MyAutomationEventHandler::Deploy(windowName, pid);
+		MyAutomationEventHandler::Deploy(pAutomation, pAutomationElement, timeout);
 	}
 	else if ( cmdOptionExists(argv, argv + argc, L"-h") || (cmdOptionExists(argv, argv + argc, L"--help")) )
 	{
