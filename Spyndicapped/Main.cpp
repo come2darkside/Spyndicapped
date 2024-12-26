@@ -1,6 +1,6 @@
 #include "Main.h"
 #include "Args.h"
-#include "Find.h"
+#include "Finder.h"
 #include "Errors.h"
 #include "Logger.h"
 #include "MyAutomationEventHandler.h"
@@ -49,7 +49,7 @@ void ShowHelp()
 	std::wcout << L"\t --debug <- displays more information" << std::endl;
 	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
 	std::wcout << L"\t --ignore-handlers <- I have created handlers for various apps, but u can use the generic HandleOther() with this flag" << std::endl;
-	std::wcout << L"\t --timeout <sec> <- interval to process events (default 1 sec)";
+	std::wcout << L"\t --timeout <sec> <- interval to process events (default 0 sec)";
 }
 
 
@@ -84,7 +84,7 @@ int wmain(int argc, wchar_t* argv[])
 		g_IgnoreHandlers = true;
 	}
 
-	int timeout = 1;
+	int timeout = 0;
 	if (cmdOptionExists(argv, argv + argc, L"--timeout"))
 	{
 		std::wstring pidStr = getCmdOption(argv, argv + argc, L"--timeout");

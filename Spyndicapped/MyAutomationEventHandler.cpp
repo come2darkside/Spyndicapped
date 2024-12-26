@@ -1,6 +1,6 @@
 #include "MyAutomationEventHandler.h"
 #include "Errors.h"
-#include "Find.h"
+#include "Finder.h"
 #include "Logger.h"
 #include "Helpers.h"
 

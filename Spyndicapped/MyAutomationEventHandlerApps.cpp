@@ -38,7 +38,7 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 	case UIA_Text_TextChangedEventId:
 
 		pAutomationElement->get_CurrentName(&bWindowName);
-23		pAutomationElement->get_CurrentClassName(&bClassName);
+		pAutomationElement->get_CurrentClassName(&bClassName);
 		pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleHelpPropertyId, &vHelp);
 		pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vValue);
 

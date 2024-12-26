@@ -36,7 +36,7 @@
     <ClCompile Include="Errors.cpp">
       <Filter>Исходные файлы\Main</Filter>
     </ClCompile>
-    <ClCompile Include="Find.cpp">
+    <ClCompile Include="Finder.cpp">
       <Filter>Исходные файлы\Main</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
@@ -65,7 +65,7 @@
     <ClInclude Include="Errors.h">
       <Filter>Файлы заголовков\Main</Filter>
     </ClInclude>
-    <ClInclude Include="Find.h">
+    <ClInclude Include="Finder.h">
       <Filter>Файлы заголовков\Main</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">

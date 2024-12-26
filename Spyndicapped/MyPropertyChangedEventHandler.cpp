@@ -1,6 +1,6 @@
 #include "MyPropertyChangedEventHandler.h"
 #include "Logger.h"
-#include "Find.h"
+#include "Finder.h"
 
 MyPropertyChangedEventHandler::MyPropertyChangedEventHandler() : refCount(1), eventCount(0)
 {
@@ -87,7 +87,7 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 
 	IncrementEventCount();
 
-
+	//todo
 
 	return ERROR_SUCCESS;
 }

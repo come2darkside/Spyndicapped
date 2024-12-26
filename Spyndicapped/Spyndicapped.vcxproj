@@ -131,7 +131,7 @@
     <ClCompile Include="MyAutomationEventHandlerApps.cpp" />
     <ClCompile Include="Args.cpp" />
     <ClCompile Include="Errors.cpp" />
-    <ClCompile Include="Find.cpp" />
+    <ClCompile Include="Finder.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MyAutomationEventHandler.cpp" />
@@ -142,7 +142,7 @@
     <ClInclude Include="MyAutomationEventHandlerApps.h" />
     <ClInclude Include="Args.h" />
     <ClInclude Include="Errors.h" />
-    <ClInclude Include="Find.h" />
+    <ClInclude Include="Finder.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MyAutomationEventHandler.h" />
