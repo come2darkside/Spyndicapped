@@ -6,6 +6,7 @@
 #include <fstream>
 #include <codecvt>
 #include <locale>
+#include <mutex>
 
 extern std::wstring g_LogFileName;
 extern bool g_DebugModeEnable;

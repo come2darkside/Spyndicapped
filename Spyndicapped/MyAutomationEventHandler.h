@@ -17,6 +17,7 @@ class MyAutomationEventHandler : public IUIAutomationEventHandler
 private:
 	ULONG refCount = 0;
     ULONG eventCount = 0;
+	std::wstring oldTextValue = L"";
 	std::chrono::seconds eventTimeout;
 	
 	void HandleFirefox(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);

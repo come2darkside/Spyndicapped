@@ -3,8 +3,10 @@
 
 std::wstring g_LogFileName;
 bool g_DebugModeEnable = false; 
+std::mutex logMutex;
 
 void Log(const std::wstring& message, LogLevel level) {
+    std::lock_guard<std::mutex> lock(logMutex);
 
     if (!g_LogFileName.empty()) {
         std::wofstream logFile(g_LogFileName, std::ios::app);
