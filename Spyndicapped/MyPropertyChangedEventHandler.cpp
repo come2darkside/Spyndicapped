@@ -69,7 +69,7 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 
 	lastEventTime = now;
 
-	HRESULT hr;
+	HRESULT hr = ERROR_SUCCESS;
 	DWORD pid = Finder::GetPIDByUIAutomationElement(pAutomationElement);
 
 	if (pid == -1)

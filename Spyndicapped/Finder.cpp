@@ -116,7 +116,6 @@ ULONG Finder::DisplayActiveWindows()
 			wsWindowName = L"<Empty>";
 		}
 
-		VARIANT vPid;
 		DWORD pid = Finder::GetPIDByUIAutomationElement(pChildEl);
 		
 		if (pid != -1)

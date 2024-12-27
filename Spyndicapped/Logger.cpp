@@ -1,8 +1,6 @@
 #include "Logger.h"
 
 
-std::wstring g_LogFileName;
-bool g_DebugModeEnable = false; 
 std::mutex logMutex;
 
 void Log(const std::wstring& message, LogLevel level) {

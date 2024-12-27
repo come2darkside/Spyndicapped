@@ -5,8 +5,12 @@
 #include "Logger.h"
 #include "MyAutomationEventHandler.h"
 #include "MyPropertyChangedEventHandler.h"
+#include "MyTreeWalker.h"
 
 bool g_IgnoreHandlers = false;
+MyTreeWalker* g_pMyTreeWalker = NULL;
+std::wstring g_LogFileName = L"";
+bool g_DebugModeEnable = false;
 
 void ShowAwesomeBanner() {
 
@@ -65,7 +69,13 @@ int wmain(int argc, wchar_t* argv[])
 		return 0;
 	}
 
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	if (FAILED(hr))
+	{
+		Log(L"CoInitializeEx() failed", WARNING);
+		PrintErrorFromHRESULT(hr);
+		return -1;
+	}
 
 	// Other args
 	if (cmdOptionExists(argv, argv + argc, L"--debug"))
@@ -145,6 +155,8 @@ int wmain(int argc, wchar_t* argv[])
 
 			Log(L"Spying " + std::to_wstring(pid), DBG);
 		}
+		
+		g_pMyTreeWalker = new MyTreeWalker(pAutomation);
 
 		std::thread automationThread(MyAutomationEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
 		std::thread propertyChangedThread(MyPropertyChangedEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
@@ -152,10 +164,14 @@ int wmain(int argc, wchar_t* argv[])
 		automationThread.join();
 		propertyChangedThread.join();
 
+		if (g_pMyTreeWalker)
+			delete g_pMyTreeWalker;
+
 		if (pAutomationElement)
 			pAutomationElement->Release();
-		
+
 		pAutomation->Release();
+
 
 	}
 	else if ( cmdOptionExists(argv, argv + argc, L"-h") || (cmdOptionExists(argv, argv + argc, L"--help")) )

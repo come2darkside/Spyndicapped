@@ -25,6 +25,9 @@
     <Filter Include="Исходные файлы\MyPropertyChangedEventHandler">
       <UniqueIdentifier>{22dd2f7c-bd51-4c42-bb2b-ce65769fe3d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\MyTreeWalker">
+      <UniqueIdentifier>{42c2afac-df17-4261-b1c2-a3efd847006b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyAutomationEventHandlerApps.cpp">
@@ -54,6 +57,9 @@
     <ClCompile Include="MyPropertyChangedEventHandler.cpp">
       <Filter>Исходные файлы\MyPropertyChangedEventHandler</Filter>
     </ClCompile>
+    <ClCompile Include="MyTreeWalker.cpp">
+      <Filter>Исходные файлы\MyTreeWalker</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyAutomationEventHandlerApps.h">
@@ -82,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="MyPropertyChangedEventHandler.h">
       <Filter>Исходные файлы\MyPropertyChangedEventHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="MyTreeWalker.h">
+      <Filter>Исходные файлы\MyTreeWalker</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

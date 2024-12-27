@@ -18,7 +18,7 @@ private:
 	ULONG refCount = 0;
     ULONG eventCount = 0;
 	std::wstring oldTextValue = L"";
-	std::chrono::seconds eventTimeout;
+	std::chrono::seconds eventTimeout = std::chrono::seconds(1); 
 	
 	void HandleFirefox(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);
 	void HandleChrome(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);

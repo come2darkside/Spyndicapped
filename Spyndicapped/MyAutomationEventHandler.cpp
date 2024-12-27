@@ -144,6 +144,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 
 	// dont forget about adding event handling in apps.cpp
 	std::vector<EVENTID> eventIds = {
+			UIA_Text_TextSelectionChangedEventId,
 			UIA_Text_TextChangedEventId,
 			UIA_Invoke_InvokedEventId,
 			UIA_Window_WindowOpenedEventId,
