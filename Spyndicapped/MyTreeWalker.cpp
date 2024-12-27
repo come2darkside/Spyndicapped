@@ -29,7 +29,7 @@ MyTreeWalker::~MyTreeWalker()
 
 IUIAutomationElement* MyTreeWalker::GetParent(IUIAutomationElement* pChild)
 {
-	IUIAutomationElement* pParent;
+	IUIAutomationElement* pParent = NULL;
 
 	if (pWalker == NULL)
 	{

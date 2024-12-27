@@ -196,7 +196,6 @@ int wmain(int argc, wchar_t* argv[])
 		ShowHelp();
 	}
 
-	Log(L"Bye................", INFO);
 	CoUninitialize();
 
 	return 0;
