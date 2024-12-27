@@ -29,11 +29,14 @@ MyTreeWalker::~MyTreeWalker()
 
 IUIAutomationElement* MyTreeWalker::GetParent(IUIAutomationElement* pChild)
 {
+	IUIAutomationElement* pParent;
+
 	if (pWalker == NULL)
 	{
 		Log(L"pWalker was null", WARNING);
+		return pParent;
 	}
-	IUIAutomationElement* pParent;
+
 	HRESULT hr = pWalker->GetParentElement(pChild, &pParent);
 	if (FAILED(hr))
 	{

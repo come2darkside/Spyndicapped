@@ -38,22 +38,26 @@ void ShowHelp()
 	std::wcout << L"There are different work modes:" << std::endl;
 	
 	std::wcout << L"[FIND mode]" << std::endl;
-	std::wcout << L"\t Displays the windows available for spying with --window or --pid" << std::endl;
-	std::wcout << L"\t Ex: Spyndicapped.exe find" << std::endl;
+	std::wcout << L"\tDisplays the windows available for spying with --window or --pid" << std::endl;
+	std::wcout << L"\t[EXAMPLES]" << std::endl;
+	std::wcout << L"\t Spyndicapped.exe find" << std::endl;
 	
 	std::wcout << L"[SPY mode]" << std::endl;
-	std::wcout << L"\t Window(s) spying mode" << std::endl;
+	std::wcout << L"\tWindow(s) spying mode" << std::endl;
 	std::wcout << L"\t --window <name> <- grabs information from that window" << std::endl;
 	std::wcout << L"\t --pid <pid> <- grabs information from that process (GUI Required)" << std::endl;
-	std::wcout << L"\t Ex: Spyndicapped.exe spy" << std::endl;
-	std::wcout << L"\t Ex: Spyndicapped.exe spy --window \"Program Manager\" " << std::endl;
-	std::wcout << L"\t Ex: Spyndicapped.exe spy --pid 123" << std::endl;
+	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
+	std::wcout << L"\t --ignore-handlers <- I have created handlers for various apps, but u can use the generic HandleOther() with this flag" << std::endl;
+	std::wcout << L"\t --timeout <sec> <- interval to process events (default 0 sec)" << std::endl;
+	std::wcout << L"\t --no-uia-events <- disables MyAutomationEventHandler" << std::endl;
+	std::wcout << L"\t --no-property-events <- disables MyPropertyChangedEventHandler" << std::endl;
+	std::wcout << L"\t[EXAMPLES]" << std::endl;
+	std::wcout << L"\t Spyndicapped.exe spy" << std::endl;
+	std::wcout << L"\t Spyndicapped.exe spy --window \"Program Manager\" " << std::endl;
+	std::wcout << L"\t Spyndicapped.exe spy --pid 123" << std::endl;
 
 	std::wcout << L"[Other]" << std::endl;
 	std::wcout << L"\t --debug <- displays more information" << std::endl;
-	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
-	std::wcout << L"\t --ignore-handlers <- I have created handlers for various apps, but u can use the generic HandleOther() with this flag" << std::endl;
-	std::wcout << L"\t --timeout <sec> <- interval to process events (default 0 sec)";
 }
 
 
@@ -158,11 +162,24 @@ int wmain(int argc, wchar_t* argv[])
 		
 		g_pMyTreeWalker = new MyTreeWalker(pAutomation);
 
-		std::thread automationThread(MyAutomationEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
-		std::thread propertyChangedThread(MyPropertyChangedEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
+		std::thread automationThread;
+		std::thread propertyChangedThread;
 
-		automationThread.join();
-		propertyChangedThread.join();
+		if (!cmdOptionExists(argv, argv + argc, L"--no-uia-events"))
+		{
+			automationThread = std::thread(MyAutomationEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
+		}
+
+		if (!cmdOptionExists(argv, argv + argc, L"--no-property-events"))
+		{
+			propertyChangedThread = std::thread(MyPropertyChangedEventHandler::Deploy, pAutomation, pAutomationElement, timeout);
+		}
+
+		if (automationThread.joinable())
+			automationThread.join();
+		
+		if (propertyChangedThread.joinable())
+			propertyChangedThread.join();
 
 		if (g_pMyTreeWalker)
 			delete g_pMyTreeWalker;
@@ -179,6 +196,7 @@ int wmain(int argc, wchar_t* argv[])
 		ShowHelp();
 	}
 
+	Log(L"Bye................", INFO);
 	CoUninitialize();
 
 	return 0;
