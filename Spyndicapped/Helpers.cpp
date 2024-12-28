@@ -163,3 +163,21 @@ std::wstring Helpers::ConvertToLower(const std::wstring& input)
 	std::transform(input.begin(), input.end(), output.begin(), ::tolower);
 	return output;
 }
+
+std::wstring Helpers::GetDomainFromUrl(const std::wstring& url) {
+	std::wstring domain = url;
+	size_t pos = domain.find(L"://");
+	if (pos != std::wstring::npos) {
+		domain = domain.substr(pos + 3);
+	}
+
+	pos = domain.find(L"/");
+	if (pos != std::wstring::npos) {
+		domain = domain.substr(0, pos);
+	}
+	pos = domain.find(L":");
+	if (pos != std::wstring::npos) {
+		domain = domain.substr(0, pos);
+	}
+	return domain;
+}

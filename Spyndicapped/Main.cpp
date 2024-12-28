@@ -12,6 +12,7 @@ MyTreeWalker* g_pMyTreeWalker = NULL;
 std::wstring g_LogFileName = L"";
 bool g_DebugModeEnable = false;
 
+
 void ShowAwesomeBanner() {
 
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);

@@ -18,4 +18,5 @@ public:
 	static std::wstring GetApplicationName(const std::wstring& fullPath);
 	static std::wstring GetCurrentDateTime();
 	static std::wstring ConvertToLower(const std::wstring& string);
+	static std::wstring GetDomainFromUrl(const std::wstring& url);
 };

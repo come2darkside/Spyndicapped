@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <UIAutomationClient.h>
+#include <atlbase.h>
 
 class MyTreeWalker
 {
@@ -11,7 +12,10 @@ private:
 public:
 	MyTreeWalker(IUIAutomation*);
 	~MyTreeWalker();
+	HRESULT GetFirstAscendingWindowName(IUIAutomationElement* pAutomationElement, BSTR* bWindowName);
 	IUIAutomationElement* GetParent(IUIAutomationElement* child);
+	IUIAutomationElement* FindFirstAscending(IUIAutomationElement* pStartElement, IUIAutomationCondition* pAutomationCondition);
+	IUIAutomation* GetPAutomation();
 };
 
 extern MyTreeWalker* g_pMyTreeWalker;

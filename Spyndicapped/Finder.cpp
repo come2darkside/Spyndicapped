@@ -28,6 +28,7 @@ std::wstring Finder::GetModuleNameFromPid(DWORD pid) {
 DWORD Finder::GetPIDByUIAutomationElement(IUIAutomationElement* pAutomationElement)
 {
 	VARIANT vPid;
+	VariantInit(&vPid);
 	HRESULT hr = pAutomationElement->GetCurrentPropertyValue(UIA_ProcessIdPropertyId, &vPid);
 	if (FAILED(hr))
 	{
@@ -36,8 +37,12 @@ DWORD Finder::GetPIDByUIAutomationElement(IUIAutomationElement* pAutomationEleme
 
 	if (V_VT(&vPid) == VT_I4)
 	{
+		VariantClear(&vPid);
 		return V_I4(&vPid);
 	}
+
+	VariantClear(&vPid);
+
 	return -1;
 }
 

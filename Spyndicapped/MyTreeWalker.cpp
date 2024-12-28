@@ -10,6 +10,8 @@ MyTreeWalker::MyTreeWalker(IUIAutomation* pUIAutomation)
 		return;
 	}
 
+	pAutomation = pUIAutomation;
+
 	HRESULT hr = pUIAutomation->get_RawViewWalker(&pWalker);
 	if (FAILED(hr))
 	{
@@ -17,6 +19,42 @@ MyTreeWalker::MyTreeWalker(IUIAutomation* pUIAutomation)
 		PrintErrorFromHRESULT(hr);
 		return;
 	}
+}
+
+HRESULT MyTreeWalker::GetFirstAscendingWindowName(IUIAutomationElement* pAutomationElementChild, BSTR* bWindowName)
+{
+	if (bWindowName == NULL)
+	{
+		return E_POINTER;
+	}
+	CComPtr<IUIAutomationElement> pAutomationElementParent;
+	HRESULT hr = pAutomationElementChild->get_CurrentName(bWindowName);
+	if (SUCCEEDED(hr) && SysStringLen(*bWindowName) == 0)
+	{
+		while (true) {
+			pAutomationElementParent = g_pMyTreeWalker->GetParent(pAutomationElementChild);
+			if (!pAutomationElementParent)
+			{
+				Log(L"Can't find parent element", DBG);
+				return E_APPLICATION_VIEW_EXITING;
+			}
+
+			hr = pAutomationElementParent->get_CurrentName(bWindowName);
+			if (FAILED(hr))
+			{
+				Log(L"Failed to get parent name", DBG);
+				return E_APPLICATION_VIEW_EXITING;
+			}
+
+			if (SysStringLen(*bWindowName) != 0)
+			{
+				break;
+			}
+
+			pAutomationElementChild = pAutomationElementParent;
+		}
+	}
+	return S_OK;
 }
 
 MyTreeWalker::~MyTreeWalker()
@@ -44,4 +82,29 @@ IUIAutomationElement* MyTreeWalker::GetParent(IUIAutomationElement* pChild)
 		PrintErrorFromHRESULT(hr);
 	}
 	return pParent;
+}
+
+IUIAutomationElement* MyTreeWalker::FindFirstAscending(IUIAutomationElement* pStartElement, IUIAutomationCondition* pAutomationCondition)
+{
+	CComPtr<IUIAutomationElement> pCurrentElement = GetParent(pStartElement);
+	IUIAutomationElement* pFoundElement = NULL;
+
+	while (pFoundElement == NULL) {
+
+		BOOL isMatch = FALSE;
+
+		HRESULT hr = pCurrentElement->FindFirst(TreeScope_Subtree, pAutomationCondition, &pFoundElement);
+		if (SUCCEEDED(hr) && pFoundElement != NULL) {
+			return pFoundElement; 
+		}
+
+		pCurrentElement = GetParent(pCurrentElement);
+	}
+
+	return NULL;
+}
+
+IUIAutomation* MyTreeWalker::GetPAutomation()
+{
+	return pAutomation;
 }

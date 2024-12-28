@@ -51,30 +51,49 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::QueryInterface(REFIID riid, 
 
 HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAutomationElement* pAutomationElement, EVENTID eventID)
 {
+	// Checks time
 	auto now = std::chrono::steady_clock::now();
 
 	if (now - lastEventTime < GetEventTimeout())
 	{
 		//Log(L"Too fast events...", DBG);
-		return ERROR_SUCCESS;
+		return S_OK;
 	}
 
 	lastEventTime = now;
 
-	HRESULT hr;
+	// Checks new value
+	VARIANT vValue;
+	VariantInit(&vValue);
+
+	HRESULT hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vValue);
+	if (FAILED(hr))
+	{
+		Log(L"Can't get property value", WARNING);
+	}
+
+	if (std::wstring(vValue.bstrVal) == oldTextValue)
+	{
+		VariantClear(&vValue);
+		return S_OK;
+	}
+
+	oldTextValue = std::wstring(vValue.bstrVal);
+	VariantClear(&vValue);
+
 	DWORD pid = Finder::GetPIDByUIAutomationElement(pAutomationElement);
 
 	if (pid == -1)
 	{
 		Log(L"MyAutomationEventHandler::HandleAutomationEvent() invalid PID Received", DBG);
-		return ERROR_SUCCESS;
+		return S_OK;
 	}
 
 	std::wstring wsFileName = Finder::GetModuleNameFromPid(pid);
 	if (wsFileName.empty())
 	{
 		Log(L"MyAutomationEventHandler::HandleAutomationEvent() invalid wsProcName Received", DBG);
-		return ERROR_SUCCESS;
+		return S_OK;
 	}
 
 	IncrementEventCount();
@@ -83,7 +102,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 	std::wstring wsEventString = Helpers::EventIdToString(eventID);
 	std::wstring wsDate = Helpers::GetCurrentDateTime();
 
-	Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
+	//Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
 
 	if (g_IgnoreHandlers)
 	{
@@ -105,8 +124,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 			HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
 		}
 	}
-
-	return ERROR_SUCCESS;
+	return S_OK;
 }
 
 void STDMETHODCALLTYPE MyAutomationEventHandler::SetEventTimeout(int seconds)
@@ -142,11 +160,10 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 		Log(L"Window Name: " + wname, INFO);
 	}
 
-	// dont forget about adding event handling in apps.cpp
+	// dont forget about adding event handling in MyAutomationEventHandlerApps.cpp
 	std::vector<EVENTID> eventIds = {
 			UIA_Text_TextSelectionChangedEventId,
 			UIA_Text_TextChangedEventId,
-			UIA_Invoke_InvokedEventId,
 			UIA_Window_WindowOpenedEventId,
 	};
 
