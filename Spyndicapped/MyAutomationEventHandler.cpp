@@ -72,7 +72,8 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 		Log(L"Can't get property value", WARNING);
 	}
 
-	if (std::wstring(vValue.bstrVal) == oldTextValue)
+	if ((std::wstring(vValue.bstrVal) == oldTextValue) && 
+		( eventID == UIA_Text_TextChangedEventId || eventID == UIA_Text_TextSelectionChangedEventId))
 	{
 		VariantClear(&vValue);
 		return S_OK;
@@ -164,6 +165,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 	std::vector<EVENTID> eventIds = {
 			UIA_Text_TextSelectionChangedEventId,
 			UIA_Text_TextChangedEventId,
+			UIA_Invoke_InvokedEventId,
 			UIA_Window_WindowOpenedEventId,
 	};
 

