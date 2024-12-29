@@ -59,7 +59,7 @@ std::chrono::seconds MyPropertyChangedEventHandler::GetEventTimeout()
 	return this->eventTimeout;
 }
 
-HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEvent(IUIAutomationElement* pAutomationElement, PROPERTYID prodId, VARIANT vVar)
+HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEvent(IUIAutomationElement* pAutomationElement, PROPERTYID propId, VARIANT vVar)
 {
 	//Log(L"Property changed", DBG);
 	auto now = std::chrono::steady_clock::now();
@@ -94,25 +94,6 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 
 	//Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
 
-	if (g_IgnoreHandlers)
-	{
-		HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
-	}
-	else {
-		std::unordered_map<std::wstring, std::function<void()>> handlers = {
-			{ L"chrome.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleChrome(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
-			{ L"keepass.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleExplorer(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } }
-		};
-
-		auto it = handlers.find(Helpers::ConvertToLower(wsProcName));
-
-		if (it != handlers.end()) {
-			it->second();
-		}
-		else {
-			HandleOther(pAutomationElement, wsProcName, wsEventString, wsDate, eventID);
-		}
-	}
 	return S_OK;
 }
 

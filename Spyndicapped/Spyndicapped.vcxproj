@@ -137,6 +137,7 @@
     <ClCompile Include="MyAutomationEventHandler.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyPropertyChangedEventHandler.cpp" />
+    <ClCompile Include="MyPropertyChangedEventHandlerApps.cpp" />
     <ClCompile Include="MyTreeWalker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +150,7 @@
     <ClInclude Include="MyAutomationEventHandler.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MyPropertyChangedEventHandler.h" />
+    <ClInclude Include="MyPropertyChangedEventHandlerApps.h" />
     <ClInclude Include="MyTreeWalker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

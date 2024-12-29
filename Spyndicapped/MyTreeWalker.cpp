@@ -108,3 +108,8 @@ IUIAutomation* MyTreeWalker::GetPAutomation()
 {
 	return pAutomation;
 }
+
+IUIAutomationTreeWalker* MyTreeWalker::GetPTreeWalker()
+{
+	return pWalker;
+}

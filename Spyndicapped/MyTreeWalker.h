@@ -16,6 +16,7 @@ public:
 	IUIAutomationElement* GetParent(IUIAutomationElement* child);
 	IUIAutomationElement* FindFirstAscending(IUIAutomationElement* pStartElement, IUIAutomationCondition* pAutomationCondition);
 	IUIAutomation* GetPAutomation();
+	IUIAutomationTreeWalker* GetPTreeWalker();
 };
 
 extern MyTreeWalker* g_pMyTreeWalker;

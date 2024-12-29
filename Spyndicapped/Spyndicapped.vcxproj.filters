@@ -60,6 +60,9 @@
     <ClCompile Include="MyTreeWalker.cpp">
       <Filter>Исходные файлы\MyTreeWalker</Filter>
     </ClCompile>
+    <ClCompile Include="MyPropertyChangedEventHandlerApps.cpp">
+      <Filter>Исходные файлы\MyPropertyChangedEventHandler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyAutomationEventHandlerApps.h">
@@ -91,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="MyTreeWalker.h">
       <Filter>Исходные файлы\MyTreeWalker</Filter>
+    </ClInclude>
+    <ClInclude Include="MyPropertyChangedEventHandlerApps.h">
+      <Filter>Исходные файлы\MyPropertyChangedEventHandler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
