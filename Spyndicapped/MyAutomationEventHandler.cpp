@@ -112,7 +112,6 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 	else {
 		std::unordered_map<std::wstring, std::function<void()>> handlers = {
 			{ L"firefox.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleFirefox(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
-			{ L"chrome.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleChrome(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } },
 			{ L"explorer.exe", [this, pAutomationElement, wsProcName, wsEventString, wsDate, eventID]() { HandleExplorer(pAutomationElement, wsProcName, wsEventString, wsDate, eventID); } }
 		};
 
@@ -158,8 +157,10 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 	if (SUCCEEDED(hr))
 	{
 		std::wstring wname(bName, SysStringLen(bName));
-		Log(L"Window Name: " + wname, INFO);
+		Log(L"Window Name for MyAutomationEventHandler(): " + wname, INFO);
 	}
+
+	SysFreeString(bName);
 
 	// dont forget about adding event handling in MyAutomationEventHandlerApps.cpp
 	std::vector<EVENTID> eventIds = {
@@ -175,6 +176,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 		if (FAILED(hr)) {
 			Log(L"Failed to add event handler for event ID: " + std::to_wstring(eventIds[i]), WARNING);
 			PrintErrorFromHRESULT(hr);
+			return E_ABORT;
 		}
 	}
 
