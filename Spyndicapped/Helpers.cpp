@@ -157,6 +157,170 @@ std::wstring Helpers::GetCurrentDateTime() {
 	return oss.str();
 }
 
+std::wstring Helpers::HandleVariant(VARIANT vVar) {
+    std::wstring result;
+
+    if (vVar.vt == VT_EMPTY) {
+        result = L"Variant is empty.";
+        return result;
+    }
+
+    switch (vVar.vt) {
+    case VT_NULL:
+        result = L"Variant is NULL.";
+        break;
+    case VT_I2:
+        result = L"Variant is int16: " + std::to_wstring(vVar.iVal);
+        break;
+    case VT_I4:
+        result = L"Variant is int32: " + std::to_wstring(vVar.lVal);
+        break;
+    case VT_R4:
+        result = L"Variant is float: " + std::to_wstring(vVar.fltVal);
+        break;
+    case VT_R8:
+        result = L"Variant is double: " + std::to_wstring(vVar.dblVal);
+        break;
+    case VT_CY:
+        result = L"Variant is currency: " + std::to_wstring(vVar.cyVal.int64); 
+        break;
+    case VT_DATE:
+        result = L"Variant is date: " + std::to_wstring(vVar.date); 
+        break;
+    case VT_BSTR:
+        result = L"Variant is BSTR: " + std::wstring(vVar.bstrVal);
+        break;
+    case VT_DISPATCH:
+        result = L"Variant is IDispatch.";
+        break;
+    case VT_ERROR:
+        result = L"Variant is error: " + std::to_wstring(vVar.scode);
+        break;
+    case VT_BOOL:
+        result = L"Variant is bool: " + std::wstring(vVar.boolVal ? L"true" : L"false");
+        break;
+    case VT_VARIANT:
+        result = L"Variant is another variant.";
+        break;
+    case VT_UNKNOWN:
+        result = L"Variant is IUnknown.";
+        break;
+    case VT_DECIMAL:
+        result = L"Variant is decimal."; 
+        break;
+    case VT_I1:
+        result = L"Variant is int8: " + std::to_wstring(static_cast<int>(vVar.bVal));
+        break;
+    case VT_UI1:
+        result = L"Variant is uint8: " + std::to_wstring(static_cast<unsigned int>(vVar.bVal));
+        break;
+    case VT_UI2:
+        result = L"Variant is uint16: " + std::to_wstring(vVar.uiVal);
+        break;
+    case VT_UI4:
+        result = L"Variant is uint32: " + std::to_wstring(vVar.ulVal);
+        break;
+    case VT_I8:
+        result = L"Variant is int64: " + std::to_wstring(vVar.llVal);
+        break;
+    case VT_UI8:
+        result = L"Variant is uint64: " + std::to_wstring(vVar.ullVal);
+        break;
+    case VT_INT:
+        result = L"Variant is int: " + std::to_wstring(vVar.intVal);
+        break;
+    case VT_UINT:
+        result = L"Variant is uint: " + std::to_wstring(vVar.uintVal);
+        break;
+    case VT_VOID:
+        result = L"Variant is void.";
+        break;
+    case VT_HRESULT:
+        result = L"Variant is HRESULT: " + std::to_wstring(vVar.scode);
+        break;
+    case VT_PTR:
+        result = L"Variant is pointer.";
+        break;
+    case VT_SAFEARRAY:
+        result = L"Variant is SAFEARRAY.";
+        break;
+    case VT_CARRAY:
+        result = L"Variant is C array.";
+        break;
+    case VT_USERDEFINED:
+        result = L"Variant is user-defined type.";
+        break;
+    case VT_LPSTR:
+        result = L"Variant is LPSTR.";
+        break;
+    case VT_LPWSTR:
+        result = L"Variant is LPWSTR.";
+        break;
+    case VT_RECORD:
+        result = L"Variant is RECORD.";
+        break;
+    case VT_INT_PTR:
+        result = L"Variant is INT_PTR.";
+        break;
+    case VT_UINT_PTR:
+        result = L"Variant is UINT_PTR.";
+        break;
+    case VT_FILETIME:
+        result = L"Variant is FILETIME.";
+        break;
+    case VT_BLOB:
+        result = L"Variant is BLOB.";
+        break;
+    case VT_STREAM:
+        result = L"Variant is STREAM.";
+        break;
+    case VT_STORAGE:
+        result = L"Variant is STORAGE.";
+        break;
+    case VT_STREAMED_OBJECT:
+        result = L"Variant is STREAMED_OBJECT.";
+        break;
+    case VT_STORED_OBJECT:
+        result = L"Variant is STORED_OBJECT.";
+        break;
+    case VT_BLOB_OBJECT:
+        result = L"Variant is BLOB_OBJECT.";
+        break;
+    case VT_CF:
+        result = L"Variant is CF.";
+        break;
+    case VT_CLSID:
+        result = L"Variant is CLSID.";
+        break;
+    case VT_VERSIONED_STREAM:
+        result = L"Variant is VERSIONED_STREAM.";
+        break;
+    case VT_BSTR_BLOB:
+        result = L"Variant is BSTR_BLOB.";
+        break;
+    case VT_VECTOR:
+        result = L"Variant is VECTOR.";
+        break;
+    case VT_ARRAY:
+        result = L"Variant is ARRAY.";
+        break;
+    case VT_BYREF:
+        result = L"Variant is BYREF.";
+        break;
+    case VT_RESERVED:
+        result = L"Variant is RESERVED.";
+        break;
+    case VT_ILLEGAL:
+        result = L"Variant is ILLEGAL.";
+        break;
+    default:
+        result = L"Variant is of unknown type.";
+        break;
+    }
+
+    return result;
+}
+
 std::wstring Helpers::ConvertToLower(const std::wstring& input)
 {
 	std::wstring output = input;

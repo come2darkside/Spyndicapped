@@ -18,12 +18,12 @@ private:
 	ULONG refCount = 0;
     ULONG eventCount = 0;
 	std::wstring oldTextValue = L"";
-	std::chrono::seconds eventTimeout = std::chrono::seconds(1); 
+	std::chrono::seconds eventTimeout = std::chrono::seconds(0); 
 	
+	void HandleOther(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);
 	void HandleFirefox(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);
 	void HandleChrome(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);
 	void HandleExplorer(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);
-	void HandleOther(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsEventString, const std::wstring& wsDate, EVENTID eventID);
 	void HandleWhatsAppFF(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate);
 	void HandleSlackFF(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate);
 
