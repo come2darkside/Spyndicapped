@@ -64,13 +64,30 @@ Keepass looting example:
 So, there is a Windows User Automation framework that allows you to work with any Windows graphical elements. I just studied it over the New Year holidays and made a small POC :P It just so happens that in parallel I became an expert in Windows programming for handicapped people. Why didn't anyone tell me about this when I first started learning pentest?
 
 In fact, I have two handlers:
-- MyAutomationEventHandler;
-- MyPropertyChangedEventHandler.
+- `MyAutomationEventHandler` — UIA basic event processing (Ex: opened a new window);
+- `MyPropertyChangedEventHandler` — property changed event handling (Ex: inserted a value).
 
-They handle all the GUI changes we are interested in: data input, text copying, data modification. 
-
-Among other things, I added an example of using patterns (one of the UIA components) on the example of KeePass looting.
+They handle all the GUI changes we are interested in: data input, text copying, data modification. Among other things, I've added handlers under different processes and even domains in the browser so you can get more familiar with the framework! See the examples below for more details. Also, I added an example of using patterns (one of the UIA components) on the example of KeePass looting.
 
 With this project you will be able to learn Windows UIA! I use almost all concepts: event handling, pattern calling, tree traversal, item lookup.
 
 You can find out more details in this article on medium.
+
+# Usage examples
+
+Check keepass looting above :))
+
+In addition, the tool can parse Telegram messages:
+![изображение](https://github.com/user-attachments/assets/03458550-9aef-4eaf-b99c-1c98e62ba61e)
+
+Note that the tool captures the text you enter, shows the sender's name and the recipient's name. In this case, I'm writing a message to a chat.
+
+The exact same functionality is supported for the Web version of Slack:
+
+![изображение](https://github.com/user-attachments/assets/b5559d1f-8916-4b58-ac0d-016c62e2aae4)
+
+And whatsapp web:
+![изображение](https://github.com/user-attachments/assets/b88fb837-4cba-4312-8f25-6eb766239544)
+
+
+
