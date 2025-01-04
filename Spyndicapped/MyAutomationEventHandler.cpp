@@ -168,6 +168,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 			UIA_Text_TextChangedEventId,
 			UIA_Invoke_InvokedEventId,
 			UIA_Window_WindowOpenedEventId,
+			UIA_AutomationPropertyChangedEventId
 	};
 
 	for (size_t i = 0; i < eventIds.size(); i++)

