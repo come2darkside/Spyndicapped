@@ -22,8 +22,8 @@ private:
 	void HandleOther(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
 	
 	void HandleKeepass(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
-	ULONG keePassPasswordsCount = 0;
-
+	BSTR previousDb = NULL;
+	
 	void HandleChrome(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
 
 public:

@@ -162,7 +162,8 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::Deploy(IUIAutomation* p
 	// don't forget about adding property handling in "MyPropertyChangedEventHandlerApps.cpp"
 	std::vector<int> propertyIds = {
 		UIA_NamePropertyId,
-		UIA_ValueValuePropertyId
+		UIA_ValueValuePropertyId,
+		UIA_SelectionItemIsSelectedPropertyId
 	};
 
 

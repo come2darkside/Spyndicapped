@@ -1,5 +1,86 @@
 #include "Helpers.h"
 
+LRESULT CALLBACK OverlayWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+    case 129:
+    case WM_NCMOUSEMOVE:
+    case WM_COMMAND:
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+
+        HBRUSH hBrush = CreateSolidBrush(RGB(192, 192, 192)); // grey color
+        FillRect(hdc, &ps.rcPaint, hBrush);
+        DeleteObject(hBrush);
+        EndPaint(hwnd, &ps);
+        return 0;
+    }
+
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+
+    }
+    return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+void Helpers::HideWindow(HWND hwnd)
+{
+    if (hwnd != NULL)
+        ShowWindow(hwnd, SW_HIDE);
+}
+
+void Helpers::CreateOverlay(HWND hwnd, HWND* pOverlayWnd)
+{
+    WNDCLASS wc = { 0 };
+    wc.lpfnWndProc = OverlayWndProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = L"OverlayClass";
+    RegisterClass(&wc);
+
+    RECT rect;
+
+    GetWindowRect(hwnd, &rect);
+
+    *pOverlayWnd = CreateWindowEx(
+        WS_EX_OVERLAPPEDWINDOW,
+        L"OverlayClass", L"Overlay", WS_POPUP,
+        rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 
+        NULL, NULL, wc.hInstance, NULL
+    );
+
+
+   // SetLayeredWindowAttributes(*pOverlayWnd, RGB(192, 192, 192), 255, LWA_COLORKEY); 
+   
+    SetWindowPos(*pOverlayWnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_SHOWWINDOW);
+    ShowWindow(*pOverlayWnd, SW_SHOW);
+}
+
+void Helpers::RemoveOverlay(HWND hwnd)
+{
+    if (hwnd)
+        DestroyWindow(hwnd);
+}
+
+HRESULT Helpers::GetClipBoardData(std::wstring& clipboardData) {
+    if (!OpenClipboard(NULL)) {
+
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    }
+    HGLOBAL hData = GetClipboardData(CF_UNICODETEXT);
+    if (hData != NULL) {
+        wchar_t* pData = static_cast<wchar_t*>(GlobalLock(hData));
+        if (pData != NULL) {
+            clipboardData = pData;
+            GlobalUnlock(hData); 
+        }
+    }
+
+    CloseClipboard();
+    return S_OK;
+}
+
 std::wstring Helpers::ControlTypeIdToString(CONTROLTYPEID controlTypeId)
 {
 	static const std::unordered_map<CONTROLTYPEID, std::wstring> controlTypeIdMap = {
