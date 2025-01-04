@@ -54,6 +54,12 @@ There are different work modes:
   .\Spyndicapped spy --pid <pid from find command>
 ```
 
+Keepass looting example:
+![изображение](https://github.com/user-attachments/assets/e14839f0-5692-4eed-868e-4dd3e9336667)
+
+![изображение](https://github.com/user-attachments/assets/c7e7c40c-5137-44c0-a96d-b044505a177c)
+
+
 # How it works
 So, there is a Windows User Automation framework that allows you to work with any Windows graphical elements. I just studied it over the New Year holidays and made a small POC :P It just so happens that in parallel I became an expert in Windows programming for handicapped people. Why didn't anyone tell me about this when I first started learning pentest?
 
