@@ -3,6 +3,7 @@
 #include "Finder.h"
 #include "Logger.h"
 #include "Helpers.h"
+#include "Main.h"
 
 MyAutomationEventHandler::MyAutomationEventHandler() : refCount(1), eventCount(0)
 {
@@ -103,7 +104,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::HandleAutomationEvent(IUIAut
 	std::wstring wsEventString = Helpers::EventIdToString(eventID);
 	std::wstring wsDate = Helpers::GetCurrentDateTime();
 
-	//Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
+	Log(L"New uia event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
 
 	if (g_IgnoreHandlers)
 	{
@@ -148,7 +149,7 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 
 	if (!pAutomationElement)
 	{
-		Log(L"Monitoring all windows", INFO);
+		Log(L"Monitoring from root", INFO);
 		pAutomation->GetRootElement(&pAutomationElement);
 	}
 
@@ -164,11 +165,11 @@ HRESULT STDMETHODCALLTYPE MyAutomationEventHandler::Deploy(IUIAutomation* pAutom
 
 	// dont forget about adding event handling in MyAutomationEventHandlerApps.cpp
 	std::vector<EVENTID> eventIds = {
+			UIA_AutomationPropertyChangedEventId,
 			UIA_Text_TextSelectionChangedEventId,
 			UIA_Text_TextChangedEventId,
 			UIA_Invoke_InvokedEventId,
-			UIA_Window_WindowOpenedEventId,
-			UIA_AutomationPropertyChangedEventId
+			UIA_Window_WindowOpenedEventId
 	};
 
 	for (size_t i = 0; i < eventIds.size(); i++)

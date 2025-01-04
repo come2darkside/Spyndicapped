@@ -7,11 +7,11 @@
 #include "MyPropertyChangedEventHandler.h"
 #include "MyTreeWalker.h"
 
+
 bool g_IgnoreHandlers = false;
 MyTreeWalker* g_pMyTreeWalker = NULL;
 std::wstring g_LogFileName = L"";
 bool g_DebugModeEnable = false;
-
 
 void ShowAwesomeBanner() {
 
@@ -34,6 +34,7 @@ Christmas present from MzHmO
 	SetConsoleTextAttribute(hConsole, 0x07);
 }
 
+
 void ShowHelp()
 {
 	std::wcout << L"There are different work modes:" << std::endl;
@@ -49,7 +50,7 @@ void ShowHelp()
 	std::wcout << L"\t --pid <pid> <- grabs information from that process (GUI Required)" << std::endl;
 	std::wcout << L"\t --logfile <filename> <- store all events into the log file" << std::endl;
 	std::wcout << L"\t --ignore-handlers <- I have created handlers for various apps, but u can use the generic HandleOther() with this flag" << std::endl;
-	std::wcout << L"\t --timeout <sec> <- interval to process events (default 0 sec)" << std::endl;
+	std::wcout << L"\t --timeout <sec> <- interval to process events (default 1 sec)" << std::endl;
 	std::wcout << L"\t --no-uia-events <- disables MyAutomationEventHandler" << std::endl;
 	std::wcout << L"\t --no-property-events <- disables MyPropertyChangedEventHandler" << std::endl;
 	std::wcout << L"\t[EXAMPLES]" << std::endl;
@@ -64,7 +65,7 @@ void ShowHelp()
 
 int wmain(int argc, wchar_t* argv[])
 {
-	setlocale(LC_ALL, "");
+	_setmode(_fileno(stdout), _O_U16TEXT);
 
 	ShowAwesomeBanner();
 
@@ -161,6 +162,7 @@ int wmain(int argc, wchar_t* argv[])
 			Log(L"Spying " + std::to_wstring(pid), DBG);
 		}
 		
+
 		g_pMyTreeWalker = new MyTreeWalker(pAutomation);
 
 		std::thread automationThread;

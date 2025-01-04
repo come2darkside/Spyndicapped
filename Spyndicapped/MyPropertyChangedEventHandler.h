@@ -17,7 +17,7 @@ private:
 	ULONG refCount = 0;
 	ULONG eventCount = 0;
 	std::wstring oldTextValue = L"";
-	std::chrono::seconds eventTimeout = std::chrono::seconds(0);
+	std::chrono::seconds eventTimeout = std::chrono::seconds(1);
 
 	void HandleOther(IUIAutomationElement* pAutomationElement, const std::wstring& wsProcName, const std::wstring& wsDate, PROPERTYID propId, VARIANT vVar);
 	

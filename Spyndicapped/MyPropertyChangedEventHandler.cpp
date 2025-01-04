@@ -3,6 +3,7 @@
 #include "Finder.h"
 #include "Errors.h"
 #include "Helpers.h"
+#include "Main.h"
 
 MyPropertyChangedEventHandler::MyPropertyChangedEventHandler() : refCount(1), eventCount(0)
 {
@@ -105,11 +106,12 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::HandlePropertyChangedEv
 		return ERROR_SUCCESS;
 	}
 
+
 	IncrementEventCount();
 	std::wstring wsProcName = Helpers::GetApplicationName(wsFileName);
 	std::wstring wsDate = Helpers::GetCurrentDateTime();
 
-	//Log(L"New event " + wsEventString + L" from " + wsProcName + L" Time: " + wsDate, DBG);
+	Log(L"New property event from " + wsProcName + L" Time: " + wsDate, DBG);
 
 	if (g_IgnoreHandlers)
 	{
@@ -145,7 +147,7 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::Deploy(IUIAutomation* p
 
 	if (!pAutomationElement)
 	{
-		Log(L"Monitoring all windows", INFO);
+		Log(L"Monitoring from rootdasd", INFO);
 		pAutomation->GetRootElement(&pAutomationElement);
 	}
 

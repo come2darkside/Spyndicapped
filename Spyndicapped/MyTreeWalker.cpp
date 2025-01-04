@@ -87,9 +87,13 @@ IUIAutomationElement* MyTreeWalker::GetParent(IUIAutomationElement* pChild)
 IUIAutomationElement* MyTreeWalker::FindFirstAscending(IUIAutomationElement* pStartElement, IUIAutomationCondition* pAutomationCondition)
 {
 	CComPtr<IUIAutomationElement> pCurrentElement = GetParent(pStartElement);
+
 	IUIAutomationElement* pFoundElement = NULL;
 
 	while (pFoundElement == NULL) {
+
+		if (pCurrentElement == NULL)
+			return NULL;
 
 		BOOL isMatch = FALSE;
 

