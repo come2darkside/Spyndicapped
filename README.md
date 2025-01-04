@@ -1,6 +1,7 @@
 # Spyndicapped
 
-Spy of your users with Microsoft UIA! Inspired by vx-underground [paper](https://samples.vx-underground.org/Papers/Windows/Windows%20COM/2022-10-28%20-%20Using%20Windows%20IUIAutomation%20for%20spyware%20and%20other%20malicious%20purposes.html).
+Spy of your users with Microsoft UIA! 
+
 ![изображение](https://github.com/user-attachments/assets/052ae59a-67d8-4d04-9fa1-847a34562af6)
 
 ```shell
