@@ -7,33 +7,39 @@ void Log(const std::wstring& message, LogLevel level) {
     std::lock_guard<std::mutex> lock(logMutex);
 
     if (!g_LogFileName.empty()) {
-        std::wofstream logFile(g_LogFileName, std::ios::app);
-        logFile.imbue(std::locale(""));
+        FILE* logFile = nullptr;
+        errno_t err = _wfopen_s(&logFile, g_LogFileName.c_str(), L"a, ccs=UTF-16LE");
+        if (logFile == nullptr || err != 0)
+        {
+            std::wcout << L"Can't create logfile" << std::endl;
+            return;
+        }
+        _setmode(_fileno(logFile), _O_U16TEXT);
+    
 
-        if (logFile.is_open()) {
-            switch (level) {
-            case EMPTY:
-                logFile << message << std::endl;
-                break;
-            case INFO:
-                logFile << L"[INFO] " << message << std::endl;
-                break;
-            case DBG:
-                if (g_DebugModeEnable) {
-                    logFile << L"[DEBUG] " << message << std::endl;
-                }
-                break;
-            case WARNING:
-                logFile << L"[WARNING] " << message << std::endl;
-                break;
-            default:
-                break;
+        switch (level) {
+        case EMPTY:
+            fwprintf(logFile, L"%ls\n", message.c_str());
+            break;
+
+        case INFO:
+            fwprintf(logFile, L"[INFO] %ls\n", message.c_str());
+            break;
+
+        case DBG:
+            if (g_DebugModeEnable) {
+                fwprintf(logFile, L"[DEBUG] %ls\n", message.c_str());
             }
-            logFile.close();
+            break;
+
+        case WARNING:
+            fwprintf(logFile, L"[WARNING] %ls\n", message.c_str());
+            break;
+
+        default:
+            break;
         }
-        else {
-            std::wcerr << L"[WARNING] Can't open LOG File " << g_LogFileName << std::endl;
-        }
+        fclose(logFile);
     }
     else {
         switch (level) {

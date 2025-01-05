@@ -7,6 +7,8 @@
 #include <codecvt>
 #include <locale>
 #include <mutex>
+#include <io.h>
+#include <fcntl.h>
 
 extern std::wstring g_LogFileName;
 extern bool g_DebugModeEnable;

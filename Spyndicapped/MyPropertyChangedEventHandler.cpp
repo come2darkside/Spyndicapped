@@ -147,7 +147,7 @@ HRESULT STDMETHODCALLTYPE MyPropertyChangedEventHandler::Deploy(IUIAutomation* p
 
 	if (!pAutomationElement)
 	{
-		Log(L"Monitoring from rootdasd", INFO);
+		Log(L"Monitoring from root", INFO);
 		pAutomation->GetRootElement(&pAutomationElement);
 	}
 
