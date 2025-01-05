@@ -72,7 +72,7 @@ They handle all the GUI changes we are interested in: data input, text copying, 
 
 With this project you will be able to learn Windows UIA! I use almost all concepts: event handling, pattern calling, tree traversal, item lookup.
 
-You can find out more details in this article on medium.
+You can find out more details in [this article on medium](https://cicada-8.medium.com/im-watching-you-how-to-spy-windows-users-via-ms-uia-c9acd30f94c4).
 
 # Usage examples
 
