@@ -2,7 +2,7 @@
 
 LRESULT CALLBACK OverlayWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-    case 129:
+    case WM_NCCREATE:
     case WM_NCMOUSEMOVE:
     case WM_COMMAND:
     case WM_PAINT: {
